@@ -317,11 +317,11 @@
     </div>
   </aside>
 
-  <button type="button" class="chat-fab" id="chatFab" aria-label="Customer service">Chat</button>
-  <div class="chat-widget" id="chatWidget" hidden>
+  <button type="button" class="chat-fab" id="chatFab" aria-label="Customer service" aria-expanded="false" aria-controls="chatWidget">Chat</button>
+  <div class="chat-widget" id="chatWidget" hidden role="dialog" aria-label="Customer service chat">
     <div class="chat-widget-head">
       <strong>Customer service</strong>
-      <button type="button" id="chatClose">×</button>
+      <button type="button" id="chatClose" aria-label="Close chat">×</button>
     </div>
     <div class="chat-widget-body" id="chatBody"></div>
     <div class="chat-widget-foot">
