@@ -181,6 +181,10 @@
     `).join('');
   }
 
+  function ratingWord(n) {
+    return ({ 1: 'Poor', 2: 'Fair', 3: 'Okay', 4: 'Good', 5: 'Excellent' })[n] || 'Excellent';
+  }
+
   function renderReviews() {
     const list = $('#reviewList');
     const sel = $('#fbProduct');
@@ -192,21 +196,45 @@
       sel.innerHTML = opts.map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join('');
       if (opts.includes(cur)) sel.value = cur;
     }
+
+    const reviews = state.data.reviews || [];
+    const avgEl = $('#fbAvgScore');
+    const starsEl = $('#fbAvgStars');
+    const countEl = $('#fbReviewCount');
+    if (avgEl && starsEl && countEl) {
+      if (!reviews.length) {
+        avgEl.textContent = '—';
+        starsEl.textContent = '☆☆☆☆☆';
+        countEl.textContent = 'No reviews yet — be the first';
+      } else {
+        const avg = reviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / reviews.length;
+        const rounded = Math.round(avg);
+        avgEl.textContent = avg.toFixed(1);
+        starsEl.textContent = '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
+        countEl.textContent = reviews.length + (reviews.length === 1 ? ' review' : ' reviews');
+      }
+    }
+
     if (!list) return;
-    const reviews = (state.data.reviews || []).slice(0, 8);
-    if (!reviews.length) {
-      list.innerHTML = '<div class="empty-state"><strong>Be the first</strong>Leave a rating — it helps us improve every day.</div>';
+    const shown = reviews.slice(0, 8);
+    if (!shown.length) {
+      list.innerHTML = '<div class="empty-state"><strong>Be the first</strong>Your rating helps neighbours choose with confidence.</div>';
       return;
     }
-    list.innerHTML = reviews.map(r => `
+    list.innerHTML = shown.map(r => {
+      const initial = String(r.name || 'G').trim().charAt(0).toUpperCase() || 'G';
+      const when = (r.at || '').replace('T', ' ').slice(0, 10);
+      return `
       <article class="review-card">
+        <div class="review-avatar" aria-hidden="true">${escapeHtml(initial)}</div>
         <div class="review-top">
           <strong>${escapeHtml(r.name || 'Guest')}</strong>
           <span class="stars">${'★'.repeat(r.rating || 0)}${'☆'.repeat(5 - (r.rating || 0))}</span>
         </div>
-        <div class="review-meta">${escapeHtml(r.reaction || '')} · ${escapeHtml(r.product || 'General')}</div>
-        <p>${escapeHtml(r.comment || '')}</p>
-      </article>`).join('');
+        <div class="review-meta">${escapeHtml(r.reaction || '')} · ${escapeHtml(r.product || 'General')}${when ? ' · ' + escapeHtml(when) : ''}</div>
+        ${r.comment ? `<p>${escapeHtml(r.comment)}</p>` : '<p style="opacity:.55">No written comment</p>'}
+      </article>`;
+    }).join('');
   }
 
   function wireFeedback() {
@@ -218,17 +246,31 @@
       $$('#starPick [data-star]').forEach(b => {
         b.classList.toggle('on', Number(b.dataset.star) <= n);
       });
+      const label = $('#fbRatingLabel');
+      if (label) label.textContent = ratingWord(n);
     };
     setStars(5);
     $$('#starPick [data-star]').forEach(b => {
       b.addEventListener('click', () => setStars(Number(b.dataset.star)));
+      b.addEventListener('mouseenter', () => {
+        const n = Number(b.dataset.star);
+        $$('#starPick [data-star]').forEach(x => {
+          x.classList.toggle('on', Number(x.dataset.star) <= n);
+        });
+      });
     });
+    $('#starPick')?.addEventListener('mouseleave', () => setStars(parseInt($('#fbRating').value, 10) || 5));
     $$('#reactionPick [data-reaction]').forEach(b => {
       b.addEventListener('click', () => {
         $$('#reactionPick [data-reaction]').forEach(x => x.classList.remove('active'));
         b.classList.add('active');
         $('#fbReaction').value = b.dataset.reaction;
       });
+    });
+    const comment = $('#fbComment');
+    const counter = $('#fbCharCount');
+    comment?.addEventListener('input', () => {
+      if (counter) counter.textContent = String((comment.value || '').length);
     });
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -246,7 +288,8 @@
         });
       });
       state.data = BLD.get();
-      $('#fbComment').value = '';
+      if (comment) comment.value = '';
+      if (counter) counter.textContent = '0';
       const thanks = $('#fbThanks');
       if (thanks) { thanks.hidden = false; setTimeout(() => { thanks.hidden = true; }, 4000); }
       renderReviews();

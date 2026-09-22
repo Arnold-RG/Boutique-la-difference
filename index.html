@@ -125,61 +125,104 @@
       </div>
     </section>
 
-    <section class="section" id="feedback">
-      <div class="container feedback-layout">
-        <div>
-          <div class="section-head" style="margin-bottom:18px">
-            <div class="eyebrow">Your voice</div>
-            <h2>Rate our service &amp; products</h2>
-            <p>Share how shopping with us felt — stars, a quick reaction, and an optional note.</p>
-          </div>
-          <form class="feedback-form" id="feedbackForm">
-            <div class="field">
-              <label for="fbName">Your name</label>
-              <input id="fbName" class="input" placeholder="Optional" maxlength="80">
+    <section class="section feedback-section" id="feedback">
+      <div class="container">
+        <div class="section-head feedback-intro">
+          <div class="eyebrow">Your voice</div>
+          <h2>Rate our service &amp; products</h2>
+          <p>Tap a rating, pick how it felt, and leave a short note — it helps us serve Zindiro better.</p>
+        </div>
+
+        <div class="feedback-layout">
+          <form class="feedback-form" id="feedbackForm" novalidate>
+            <div class="fb-form-head">
+              <h3>Leave a review</h3>
+              <p>Takes less than a minute. Name is optional.</p>
             </div>
-            <div class="field">
-              <label>Star rating</label>
-              <div class="star-pick" id="starPick" role="radiogroup" aria-label="Rating">
-                <button type="button" data-star="1" aria-label="1 star">★</button>
-                <button type="button" data-star="2" aria-label="2 stars">★</button>
-                <button type="button" data-star="3" aria-label="3 stars">★</button>
-                <button type="button" data-star="4" aria-label="4 stars">★</button>
-                <button type="button" data-star="5" aria-label="5 stars">★</button>
+
+            <div class="fb-rating-block">
+              <div class="fb-rating-label">
+                <span>Your rating</span>
+                <strong id="fbRatingLabel">Excellent</strong>
+              </div>
+              <div class="star-pick" id="starPick" role="radiogroup" aria-label="Star rating">
+                <button type="button" data-star="1" aria-label="1 star"><span aria-hidden="true">★</span></button>
+                <button type="button" data-star="2" aria-label="2 stars"><span aria-hidden="true">★</span></button>
+                <button type="button" data-star="3" aria-label="3 stars"><span aria-hidden="true">★</span></button>
+                <button type="button" data-star="4" aria-label="4 stars"><span aria-hidden="true">★</span></button>
+                <button type="button" data-star="5" aria-label="5 stars"><span aria-hidden="true">★</span></button>
               </div>
               <input type="hidden" id="fbRating" value="5">
             </div>
+
             <div class="field">
-              <label>Reaction</label>
+              <label>How did it feel?</label>
               <div class="reaction-pick" id="reactionPick">
-                <button type="button" class="reaction-btn active" data-reaction="Loved it">Loved it</button>
-                <button type="button" class="reaction-btn" data-reaction="Happy">Happy</button>
-                <button type="button" class="reaction-btn" data-reaction="Okay">Okay</button>
-                <button type="button" class="reaction-btn" data-reaction="Needs work">Needs work</button>
-                <button type="button" class="reaction-btn" data-reaction="Disappointed">Disappointed</button>
+                <button type="button" class="reaction-btn active" data-reaction="Loved it">
+                  <span class="rx-icon rx-love" aria-hidden="true"></span>
+                  <span>Loved it</span>
+                </button>
+                <button type="button" class="reaction-btn" data-reaction="Happy">
+                  <span class="rx-icon rx-happy" aria-hidden="true"></span>
+                  <span>Happy</span>
+                </button>
+                <button type="button" class="reaction-btn" data-reaction="Okay">
+                  <span class="rx-icon rx-okay" aria-hidden="true"></span>
+                  <span>Okay</span>
+                </button>
+                <button type="button" class="reaction-btn" data-reaction="Needs work">
+                  <span class="rx-icon rx-work" aria-hidden="true"></span>
+                  <span>Needs work</span>
+                </button>
+                <button type="button" class="reaction-btn" data-reaction="Disappointed">
+                  <span class="rx-icon rx-sad" aria-hidden="true"></span>
+                  <span>Disappointed</span>
+                </button>
               </div>
               <input type="hidden" id="fbReaction" value="Loved it">
             </div>
-            <div class="field">
-              <label for="fbProduct">About</label>
-              <select id="fbProduct">
-                <option value="General service">General service</option>
-              </select>
+
+            <div class="fb-grid-2">
+              <div class="field">
+                <label for="fbName">Your name</label>
+                <input id="fbName" class="fb-control" type="text" placeholder="Optional" maxlength="80" autocomplete="name">
+              </div>
+              <div class="field">
+                <label for="fbProduct">About</label>
+                <select id="fbProduct" class="fb-control">
+                  <option value="General service">General service</option>
+                </select>
+              </div>
             </div>
+
             <div class="field">
-              <label for="fbComment">Comment</label>
-              <textarea id="fbComment" rows="3" placeholder="What stood out — products, staff, prices…" maxlength="500"></textarea>
+              <label for="fbComment">Your comment</label>
+              <textarea id="fbComment" class="fb-control" rows="4" placeholder="What stood out — products, staff, prices, cleanliness…" maxlength="500"></textarea>
+              <div class="fb-char"><span id="fbCharCount">0</span>/500</div>
             </div>
-            <button type="submit" class="btn btn-solid">Send feedback</button>
-            <p class="feedback-note" id="fbThanks" hidden>Thank you — your feedback was saved.</p>
+
+            <div class="fb-actions">
+              <button type="submit" class="btn btn-solid fb-submit">Send feedback</button>
+              <p class="feedback-note" id="fbThanks" hidden>Thank you — your feedback was saved.</p>
+            </div>
           </form>
-        </div>
-        <div>
-          <div class="section-head" style="margin-bottom:18px">
-            <div class="eyebrow">Recent</div>
-            <h2>What customers say</h2>
-          </div>
-          <div class="review-list" id="reviewList"></div>
+
+          <aside class="feedback-side">
+            <div class="fb-summary" id="fbSummary">
+              <div class="fb-score">
+                <div class="fb-score-num" id="fbAvgScore">—</div>
+                <div class="fb-score-meta">
+                  <div class="fb-score-stars" id="fbAvgStars"></div>
+                  <div class="fb-score-count" id="fbReviewCount">No reviews yet</div>
+                </div>
+              </div>
+            </div>
+            <div class="fb-side-head">
+              <div class="eyebrow">Recent</div>
+              <h3>What customers say</h3>
+            </div>
+            <div class="review-list" id="reviewList"></div>
+          </aside>
         </div>
       </div>
     </section>
