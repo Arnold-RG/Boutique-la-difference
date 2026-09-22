@@ -8,7 +8,76 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20260322b">
+  <link rel="stylesheet" href="assets/css/site.css?v=20260322c">
+  <style id="chatCritical">
+    /* Critical chat open/close — works even if site.css is cached */
+    #helpScrim {
+      position: fixed; inset: 0; z-index: 80;
+      background: rgba(4, 10, 22, .62);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .2s ease, visibility .2s ease;
+    }
+    #helpScrim.is-on { opacity: 1; visibility: visible; pointer-events: auto; }
+    #helpSheet {
+      position: fixed; left: 50%; bottom: 0; z-index: 81;
+      width: min(420px, 100%);
+      max-height: min(72vh, 560px);
+      transform: translate(-50%, 110%);
+      transition: transform .28s cubic-bezier(.2,.8,.2,1);
+      background: #0e1a2e;
+      border: 1px solid rgba(140,180,220,.16);
+      border-bottom: 0;
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -24px 60px -20px rgba(0,0,0,.65);
+      display: flex; flex-direction: column;
+      color: #e8eef8;
+      overflow: hidden;
+    }
+    #helpSheet.is-on { transform: translate(-50%, 0); }
+    #helpSheet .help-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 16px; background: #060d18; flex-shrink: 0;
+    }
+    #helpSheet .help-head strong { font-size: 1rem; }
+    #helpCloseBtn {
+      border: 0; cursor: pointer;
+      background: #3d9a68; color: #fff;
+      font-weight: 700; font-size: .85rem;
+      padding: 10px 14px; border-radius: 999px;
+    }
+    #helpCloseBtn:hover { filter: brightness(1.08); }
+    #helpBody {
+      flex: 1; overflow: auto; padding: 14px; min-height: 180px;
+      display: flex; flex-direction: column; gap: 8px; background: #0a1424;
+    }
+    #helpBody .chat-bubble {
+      max-width: 90%; padding: 8px 10px; border-radius: 12px; font-size: .85rem;
+    }
+    #helpBody .chat-bubble .meta { font-size: .68rem; color: #8ba0b8; margin-bottom: 2px; }
+    #helpBody .chat-bubble.customer { background: #152438; border: 1px solid rgba(140,180,220,.14); align-self: flex-end; }
+    #helpBody .chat-bubble.admin { background: #1a4a35; color: #fff; align-self: flex-start; }
+    #helpBody .chat-bubble.admin .meta { color: rgba(255,255,255,.65); }
+    #helpFoot {
+      display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(140,180,220,.14);
+      background: #0e1a2e; flex-shrink: 0;
+    }
+    #helpInput {
+      flex: 1; border: 1px solid rgba(140,180,220,.14); border-radius: 12px;
+      padding: 11px 12px; background: #152438; color: #e8eef8;
+    }
+    #helpSend {
+      border: 0; cursor: pointer; padding: 11px 16px; border-radius: 12px;
+      background: #c9a227; color: #07140f; font-weight: 700;
+    }
+    #helpFab {
+      position: fixed; right: 18px; bottom: 18px; z-index: 70;
+      border: 0; cursor: pointer;
+      padding: 14px 20px; border-radius: 999px;
+      background: #3d9a68; color: #fff; font-weight: 700;
+      box-shadow: 0 16px 40px -18px rgba(0,0,0,.7);
+    }
+    body.help-open { overflow: hidden; }
+  </style>
 </head>
 <body>
   <header class="site-nav" id="siteNav">
@@ -317,21 +386,67 @@
     </div>
   </aside>
 
-  <button type="button" class="chat-fab" id="chatFab" aria-label="Open customer service chat" aria-expanded="false" aria-controls="chatWidget">Chat</button>
-  <div class="chat-widget" id="chatWidget" role="dialog" aria-label="Customer service chat" aria-hidden="true">
-    <div class="chat-widget-head">
-      <strong>Customer service</strong>
-      <button type="button" id="chatClose" aria-label="Close chat">×</button>
+  <button type="button" id="helpFab" aria-expanded="false" aria-controls="helpSheet">Need help?</button>
+  <div id="helpScrim"></div>
+  <div id="helpSheet" role="dialog" aria-label="Customer service" aria-hidden="true">
+    <div class="help-head">
+      <div>
+        <strong>Customer service</strong>
+        <div style="font-size:.75rem;color:#8ba0b8;margin-top:2px">Boutique La Différence</div>
+      </div>
+      <button type="button" id="helpCloseBtn">Close</button>
     </div>
-    <div class="chat-widget-body" id="chatBody"></div>
-    <div class="chat-widget-foot">
-      <input id="chatInput" placeholder="Type a message…">
-      <button type="button" id="chatSend">Send</button>
+    <div id="helpBody"></div>
+    <div id="helpFoot">
+      <input id="helpInput" type="text" placeholder="Type a message…" autocomplete="off">
+      <button type="button" id="helpSend">Send</button>
     </div>
   </div>
 
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
-  <script src="assets/js/data.js?v=20260322b"></script>
-  <script src="assets/js/store.js?v=20260322b"></script>
+  <script>
+    (function () {
+      var y = document.getElementById('year');
+      if (y) y.textContent = new Date().getFullYear();
+
+      var fab = document.getElementById('helpFab');
+      var sheet = document.getElementById('helpSheet');
+      var scrim = document.getElementById('helpScrim');
+      var closeBtn = document.getElementById('helpCloseBtn');
+      if (!fab || !sheet || !scrim || !closeBtn) return;
+
+      function openHelp(on) {
+        sheet.classList.toggle('is-on', on);
+        scrim.classList.toggle('is-on', on);
+        sheet.setAttribute('aria-hidden', on ? 'false' : 'true');
+        fab.setAttribute('aria-expanded', on ? 'true' : 'false');
+        fab.textContent = on ? 'Close help' : 'Need help?';
+        document.body.classList.toggle('help-open', on);
+        if (on) {
+          try { window.dispatchEvent(new CustomEvent('bld:help-open')); } catch (e) {}
+          setTimeout(function () {
+            var input = document.getElementById('helpInput');
+            if (input) input.focus();
+          }, 80);
+        }
+      }
+
+      openHelp(false);
+      fab.addEventListener('click', function (e) {
+        e.preventDefault();
+        openHelp(!sheet.classList.contains('is-on'));
+      });
+      closeBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        openHelp(false);
+      });
+      scrim.addEventListener('click', function () { openHelp(false); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sheet.classList.contains('is-on')) openHelp(false);
+      });
+      window.BLDHelpChat = { open: openHelp, isOpen: function () { return sheet.classList.contains('is-on'); } };
+    })();
+  </script>
+  <script src="assets/js/data.js?v=20260322c"></script>
+  <script src="assets/js/store.js?v=20260322c"></script>
 </body>
 </html>
