@@ -1,0 +1,8 @@
+id,sku,name,category,price,unit,stock,description,image,featured,active
+,,Example Rice 25kg,food,28000,bag,40,Long grain rice — replace with real stock,,false,true
+,,Example Cooking Oil 5L,food,15000,bottle,25,Vegetable oil,,false,true
+,,Example Mineral Water 1.5L,drinks,700,bottle,100,Packaged water,,false,true
+,,Example LED Bulb,electronics,2500,pcs,30,Energy saving,,false,true
+,,Example Frying Pan,home,8500,pcs,12,Non-stick,,false,true
+,,Example Screwdriver Set,tools,6000,set,8,Basic toolkit,,false,true
+,,Example Body Lotion,body,4500,bottle,20,Skin care,,false,true
