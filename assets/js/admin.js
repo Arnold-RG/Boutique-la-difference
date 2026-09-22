@@ -149,17 +149,7 @@
   }
 
   /* ========== DASHBOARD ========== */
-  const NAV = [
-    { section: 'Manage', items: [
-      ['overview', 'Overview'],
-      ['products', 'Products'],
-      ['excel', 'Excel / Sheets'],
-      ['media', 'Images'],
-      ['events', 'Events & discounts'],
-      ['settings', 'Site settings'],
-      ['security', 'Security']
-    ]}
-  ];
+  const NAV = BLDAdminOps.NAV;
 
   function renderDashboard() {
     const data = BLD.get();
@@ -212,19 +202,13 @@
   }
 
   function titleFor(t) {
-    return ({
-      overview: 'Overview',
-      products: 'Products',
-      excel: 'Excel & Google Sheets',
-      media: 'Image library',
-      events: 'Events & discounts',
-      settings: 'Site settings',
-      security: 'Security'
-    })[t] || 'Dashboard';
+    return BLDAdminOps.TITLES[t] || 'Dashboard';
   }
 
   function tabHtml(data) {
-    if (tab === 'overview') return overviewHtml(data);
+    if (tab === 'overview') return BLDAdminOps.overviewExtra(data);
+    const ops = BLDAdminOps.renderTab(tab, data);
+    if (ops != null) return ops;
     if (tab === 'products') return productsHtml(data);
     if (tab === 'excel') return excelHtml(data);
     if (tab === 'media') return mediaHtml(data);
@@ -232,28 +216,6 @@
     if (tab === 'settings') return settingsHtml(data);
     if (tab === 'security') return securityHtml();
     return '';
-  }
-
-  function overviewHtml(data) {
-    const active = data.products.filter(p => p.active !== false).length;
-    const low = data.products.filter(p => p.stock > 0 && p.stock <= 5).length;
-    return `
-      <div class="grid-kpi">
-        <div class="kpi"><div class="label">Products</div><div class="value">${data.products.length}</div></div>
-        <div class="kpi"><div class="label">Live on site</div><div class="value">${active}</div></div>
-        <div class="kpi"><div class="label">Images</div><div class="value">${data.media.length}</div></div>
-        <div class="kpi"><div class="label">Promos / events</div><div class="value">${data.discounts.length + data.events.length}</div></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h2>Quick path to go live</h2></div>
-        <div class="help">
-          1. Download the Excel/CSV template from <strong>Excel / Sheets</strong>.<br>
-          2. Fill product rows (name, category, price, stock, image URL or leave blank and attach photos here).<br>
-          3. Import the file or paste a published Google Sheet link — the public website updates automatically.<br>
-          4. Add business photos, discounts, and events. No customer login on the storefront.
-          ${low ? `<br><br><span class="pill pill-warn">${low} products at low stock (≤5)</span>` : ''}
-        </div>
-      </div>`;
   }
 
   function productsHtml(data) {
@@ -459,7 +421,7 @@
   function modalHtml() {
     if (!modal) return '';
     if (modal.type === 'product') {
-      const p = modal.product || { name: '', category: 'food', price: 0, unit: 'unit', stock: 0, description: '', image: '', featured: false, active: true };
+      const p = modal.product || { name: '', category: 'food', price: 0, cost: 0, unit: 'unit', stock: 0, barcode: '', description: '', image: '', featured: false, active: true };
       const mediaOpts = BLD.get().media.map(m => `<option value="media:${m.id}" ${p.image === 'media:' + m.id ? 'selected' : ''}>${esc(m.caption || m.kind || m.id)}</option>`).join('');
       return `
         <div class="modal-scrim" id="modalScrim"><div class="modal">
@@ -467,10 +429,12 @@
           <div class="form-grid">
             <div class="field full"><label>Name</label><input id="pName" class="input" value="${escAttr(p.name)}"></div>
             <div class="field"><label>SKU</label><input id="pSku" class="input" value="${escAttr(p.sku || '')}"></div>
+            <div class="field"><label>Barcode</label><input id="pBarcode" class="input" value="${escAttr(p.barcode || '')}"></div>
             <div class="field"><label>Category</label>
               <select id="pCat">${BLD.DEFAULT_CATEGORIES.map(c => `<option value="${c.id}" ${p.category === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select>
             </div>
-            <div class="field"><label>Price</label><input id="pPrice" type="number" min="0" step="1" class="input" value="${p.price || 0}"></div>
+            <div class="field"><label>Sell price</label><input id="pPrice" type="number" min="0" step="1" class="input" value="${p.price || 0}"></div>
+            <div class="field"><label>Cost price</label><input id="pCost" type="number" min="0" step="1" class="input" value="${p.cost || 0}"></div>
             <div class="field"><label>Unit</label><input id="pUnit" class="input" value="${escAttr(p.unit || 'unit')}"></div>
             <div class="field"><label>Stock</label><input id="pStock" type="number" class="input" value="${p.stock || 0}"></div>
             <div class="field"><label>Image</label>
@@ -512,6 +476,8 @@
   }
 
   function wireTab(data) {
+    const ctx = { data, refresh: renderDashboard, toast };
+    BLDAdminOps.wireTab(tab, ctx);
     if (tab === 'products') {
       $('#btnAddProduct')?.addEventListener('click', () => { modal = { type: 'product', product: null }; renderDashboard(); });
       $$('[data-edit]').forEach(b => b.addEventListener('click', () => {
@@ -690,8 +656,10 @@
         const payload = {
           name: $('#pName').value.trim(),
           sku: $('#pSku').value.trim(),
+          barcode: $('#pBarcode').value.trim(),
           category: $('#pCat').value,
           price: parseFloat($('#pPrice').value) || 0,
+          cost: parseFloat($('#pCost').value) || 0,
           unit: $('#pUnit').value.trim() || 'unit',
           stock: parseInt($('#pStock').value, 10) || 0,
           description: $('#pDesc').value.trim(),

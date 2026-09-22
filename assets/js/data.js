@@ -20,7 +20,7 @@
 
   function emptyStore() {
     return {
-      version: 1,
+      version: 2,
       updatedAt: new Date().toISOString(),
       settings: {
         shopName: 'Boutique La Différence',
@@ -35,13 +35,42 @@
         hours: [
           ['Monday – Friday', '07:00 – 23:00'],
           ['Saturday – Sunday', '09:00 – 23:00']
-        ]
+        ],
+        social: {
+          facebook: '',
+          instagram: '',
+          twitter: '',
+          tiktok: '',
+          youtube: '',
+          whatsappChannel: ''
+        },
+        about: {
+          story: 'Boutique La Différence is a family-run neighborhood supermarket in Zindiro, Kigali — serving daily food, drinks, electronics, home equipment, tools, body products, and more.',
+          mission: 'Fair prices, reliable stock, and warm service for every household.'
+        },
+        chatWelcome: 'Muraho! How can Boutique La Différence help you today?'
       },
       categories: DEFAULT_CATEGORIES.map(c => ({ ...c })),
       products: [],
       media: [],
       events: [],
-      discounts: []
+      discounts: [],
+      sales: [],
+      purchases: [],
+      activities: [],
+      employees: [],
+      shifts: [],
+      salaries: [],
+      debts: [],
+      shipments: [],
+      payments: [],
+      chatMessages: [],
+      policies: [],
+      cameras: [],
+      ads: [],
+      team: [],
+      logistics: [],
+      orders: []
     };
   }
 
@@ -51,7 +80,10 @@
       if (!raw) return emptyStore();
       const parsed = JSON.parse(raw);
       return Object.assign(emptyStore(), parsed, {
-        settings: Object.assign(emptyStore().settings, parsed.settings || {}),
+        settings: Object.assign(emptyStore().settings, parsed.settings || {}, {
+          social: Object.assign(emptyStore().settings.social, (parsed.settings && parsed.settings.social) || {}),
+          about: Object.assign(emptyStore().settings.about, (parsed.settings && parsed.settings.about) || {})
+        }),
         categories: (parsed.categories && parsed.categories.length) ? parsed.categories : emptyStore().categories
       });
     } catch (e) {
@@ -131,9 +163,11 @@
     return {
       id: o.id || o.sku || uid('p'),
       sku: o.sku || o.id || '',
+      barcode: o.barcode || o.ean || o.upc || '',
       name,
       category: catMap[category] || (DEFAULT_CATEGORIES.some(c => c.id === category) ? category : 'more'),
-      price: parseFloat(o.price || o.cost || o.amount || '0') || 0,
+      price: parseFloat(o.price || o.amount || '0') || 0,
+      cost: parseFloat(o.cost || o.buy || o.purchase_price || '0') || 0,
       unit: o.unit || 'unit',
       stock: Math.round(parseFloat(o.stock || o.qty || o.quantity || '0') || 0),
       description: o.description || o.desc || o.notes || '',
@@ -141,6 +175,68 @@
       featured: String(o.featured || '').toLowerCase() === 'true' || o.featured === '1',
       active: String(o.active || 'true').toLowerCase() !== 'false' && o.active !== '0'
     };
+  }
+
+  function todayKey() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function revenueStats(data) {
+    const d = data || load();
+    const sales = d.sales || [];
+    const today = todayKey();
+    const month = today.slice(0, 7);
+    const sum = (list) => list.reduce((a, s) => a + (Number(s.total) || 0), 0);
+    const todaySales = sales.filter(s => (s.date || '').slice(0, 10) === today);
+    const monthSales = sales.filter(s => (s.date || '').startsWith(month));
+    const costOfSold = sales.reduce((a, s) => a + (Number(s.costTotal) || 0), 0);
+    const revenue = sum(sales);
+    const debtsOpen = (d.debts || []).filter(x => x.status !== 'paid').reduce((a, x) => a + (Number(x.balance) || Number(x.amount) || 0), 0);
+    const stockValue = (d.products || []).reduce((a, p) => a + (Number(p.price) || 0) * (Number(p.stock) || 0), 0);
+    const lowStock = (d.products || []).filter(p => (Number(p.stock) || 0) <= 5).length;
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const dt = new Date();
+      dt.setDate(dt.getDate() - i);
+      const key = dt.toISOString().slice(0, 10);
+      days.push({
+        date: key,
+        label: dt.toLocaleDateString('en-GB', { weekday: 'short' }),
+        total: sum(sales.filter(s => (s.date || '').slice(0, 10) === key))
+      });
+    }
+    return {
+      todayRevenue: sum(todaySales),
+      monthRevenue: sum(monthSales),
+      totalRevenue: revenue,
+      totalCost: costOfSold,
+      profit: revenue - costOfSold,
+      debtsOpen,
+      stockValue,
+      lowStock,
+      todayOrders: todaySales.length,
+      days
+    };
+  }
+
+  function logActivity(type, message, meta) {
+    update(db => {
+      db.activities = db.activities || [];
+      db.activities.unshift({
+        id: uid('act'),
+        type: type || 'note',
+        message: message || '',
+        meta: meta || {},
+        at: new Date().toISOString()
+      });
+      db.activities = db.activities.slice(0, 300);
+    });
+  }
+
+  function findByBarcode(code) {
+    const c = String(code || '').trim();
+    if (!c) return null;
+    return load().products.find(p => p.barcode === c || p.sku === c || p.id === c) || null;
   }
 
   function importProductRows(objects, mode) {
@@ -161,7 +257,7 @@
   }
 
   function exportProductsCsv(products) {
-    const cols = ['id', 'sku', 'name', 'category', 'price', 'unit', 'stock', 'description', 'image', 'featured', 'active'];
+    const cols = ['id', 'sku', 'barcode', 'name', 'category', 'price', 'cost', 'unit', 'stock', 'description', 'image', 'featured', 'active'];
     const list = products || load().products;
     const esc = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
     return [cols.join(',')].concat(list.map(p => cols.map(c => esc(p[c])).join(','))).join('\n');
@@ -258,6 +354,10 @@
     importWorkbookFile,
     downloadText,
     exportFullBackup,
-    importFullBackup
+    importFullBackup,
+    todayKey,
+    revenueStats,
+    logActivity,
+    findByBarcode
   };
 })(window);

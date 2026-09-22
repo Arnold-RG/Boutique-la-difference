@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Boutique La Différence — Zindiro Supermarket</title>
-  <meta name="description" content="Boutique La Différence — neighborhood supermarket in Zindiro, Kigali. Food, drinks, electronics, home equipment, tools, body products and more.">
+  <meta name="description" content="Boutique La Différence — neighborhood supermarket in Zindiro, Kigali. Shop food, drinks, electronics, home goods and more. No account needed.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,13 +22,16 @@
       </a>
       <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
       <nav class="nav-links" id="navLinks">
-        <a href="#categories">Categories</a>
-        <a href="#catalog">Shop</a>
-        <a href="#promos">Offers</a>
+        <a href="#categories">Shop</a>
+        <a href="#about">About</a>
+        <a href="#team">Team</a>
+        <a href="#ads">Partners</a>
         <a href="#visit">Visit</a>
       </nav>
       <div class="nav-meta">
-        <a class="btn btn-brass" href="#catalog">Browse catalog</a>
+        <button type="button" class="cart-btn" id="cartBtn" aria-label="Open cart">
+          Cart <span class="cart-count" id="cartCount">0</span>
+        </button>
       </div>
     </div>
   </header>
@@ -45,8 +48,8 @@
         <h1 data-shop-name>Boutique La Différence</h1>
         <p data-tagline>Your everyday store for food, drinks, electronics, home equipment, tools, body products, and more — stocked from our live inventory.</p>
         <div class="hero-actions">
-          <a class="btn btn-brass" href="#catalog">See what’s in stock</a>
-          <a class="btn btn-ghost" href="#visit">Find the shop</a>
+          <a class="btn btn-brass" href="#catalog">Shop the catalog</a>
+          <a class="btn btn-ghost" href="#about">About us</a>
         </div>
       </div>
     </section>
@@ -56,7 +59,7 @@
         <div class="section-head">
           <div class="eyebrow">Departments</div>
           <h2>Everything for the household</h2>
-          <p>Browse by category. Product names, prices, and photos load from the shop’s Excel / Sheets database — nothing is hard-coded on this page.</p>
+          <p>Browse by category. Add items to your cart — no login required.</p>
         </div>
         <div class="cat-grid" id="catGrid"></div>
       </div>
@@ -67,7 +70,7 @@
         <div class="section-head">
           <div class="eyebrow">Live catalog</div>
           <h2>Current stock</h2>
-          <p>Synced from the owner’s spreadsheet and admin dashboard.</p>
+          <p>Prices and stock sync from the shop’s Excel / admin dashboard.</p>
         </div>
         <div class="toolbar">
           <label class="search">
@@ -87,11 +90,48 @@
             <div>
               <div class="eyebrow" style="color:var(--brass-2)">From the shop floor</div>
               <h2 style="margin:0 0 10px;font-size:clamp(1.6rem,3vw,2.2rem)">Events &amp; discounts</h2>
-              <p style="margin:0;color:rgba(244,247,245,.7);max-width:36ch">Published by the owner from the admin dashboard — no customer account needed.</p>
+              <p style="margin:0;color:rgba(244,247,245,.7);max-width:36ch">Published by the owner from the admin dashboard.</p>
             </div>
             <div class="promo-list" id="promoList"></div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="container about-grid">
+        <div>
+          <div class="eyebrow">About us</div>
+          <h2>Our story</h2>
+          <p id="aboutStory" class="about-copy"></p>
+          <p id="aboutMission" class="about-mission"></p>
+        </div>
+        <div class="panel">
+          <h3 style="margin-top:0">Follow us</h3>
+          <div class="social-links" id="socialLinks"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="team" style="background:#eef3f0;">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow">People</div>
+          <h2>Our team</h2>
+          <p>The faces behind Boutique La Différence.</p>
+        </div>
+        <div class="team-grid" id="teamGrid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="ads">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow">Community</div>
+          <h2>Businesses we advertise</h2>
+          <p>Supporting other businesses across Rwanda — managed from our admin portal.</p>
+        </div>
+        <div class="ads-grid" id="adsGrid"></div>
       </div>
     </section>
 
@@ -100,7 +140,7 @@
         <div class="section-head">
           <div class="eyebrow">The shop</div>
           <h2>Inside Boutique La Différence</h2>
-          <p>Business photos and event imagery added by the admin.</p>
+          <p>Business photos added by the admin.</p>
         </div>
         <div class="gallery" id="galleryGrid"></div>
       </div>
@@ -111,7 +151,7 @@
         <div class="section-head">
           <div class="eyebrow">Visit us</div>
           <h2>Open for your daily shop</h2>
-          <p>Come through Zindiro — or message the shop for what’s available today.</p>
+          <p>Come through Zindiro — or order via cart and WhatsApp.</p>
         </div>
         <div class="visit-grid">
           <div class="panel">
@@ -137,16 +177,18 @@
       <div>
         <h3 data-shop-name>Boutique La Différence</h3>
         <p data-tagline></p>
+        <div class="social-links" id="footerSocial" style="margin-top:14px"></div>
       </div>
       <div>
         <h3>Explore</h3>
-        <p><a href="#categories">Categories</a></p>
         <p><a href="#catalog">Catalog</a></p>
-        <p><a href="#visit">Visit</a></p>
+        <p><a href="#about">About</a></p>
+        <p><a href="#team">Team</a></p>
+        <p><a href="#ads">Partners</a></p>
       </div>
       <div>
         <h3>Note</h3>
-        <p>This public website has no customer login or registration. Inventory is managed privately by the shop owner.</p>
+        <p>No customer login or registration. Shop freely, add to cart, and checkout via WhatsApp or at the store.</p>
       </div>
     </div>
     <div class="container footer-bottom">
@@ -154,6 +196,35 @@
       <a class="admin-link" href="admin/">Admin</a>
     </div>
   </footer>
+
+  <div class="scrim" id="cartScrim"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
+    <div class="cart-head">
+      <h2 class="display">Your cart</h2>
+      <button type="button" class="btn btn-ghost" id="cartClose">Close</button>
+    </div>
+    <div class="cart-body" id="cartBody"></div>
+    <div class="cart-foot">
+      <div class="cart-total">Total: <strong id="cartTotal">RWF 0</strong></div>
+      <div class="field"><label>Full name</label><input id="coName" class="input" placeholder="Your name"></div>
+      <div class="field"><label>Phone</label><input id="coPhone" class="input" placeholder="+250…"></div>
+      <div class="field"><label>Delivery address</label><input id="coAddr" class="input" placeholder="Neighborhood / street"></div>
+      <button type="button" class="btn btn-brass" id="btnCheckout" style="width:100%">Checkout via WhatsApp</button>
+    </div>
+  </aside>
+
+  <button type="button" class="chat-fab" id="chatFab" aria-label="Customer service">Chat</button>
+  <div class="chat-widget" id="chatWidget" hidden>
+    <div class="chat-widget-head">
+      <strong>Customer service</strong>
+      <button type="button" id="chatClose">×</button>
+    </div>
+    <div class="chat-widget-body" id="chatBody"></div>
+    <div class="chat-widget-foot">
+      <input id="chatInput" placeholder="Type a message…">
+      <button type="button" id="chatSend">Send</button>
+    </div>
+  </div>
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
   <script src="assets/js/data.js"></script>
