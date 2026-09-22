@@ -185,6 +185,17 @@
     return ({ 1: 'Poor', 2: 'Fair', 3: 'Okay', 4: 'Good', 5: 'Excellent' })[n] || 'Excellent';
   }
 
+  function reactionEmoji(label) {
+    const map = {
+      'Loved it': '😍',
+      'Happy': '😁',
+      'Okay': '😐',
+      'Needs work': '😞',
+      'Disappointed': '😡'
+    };
+    return map[label] || '';
+  }
+
   function renderReviews() {
     const list = $('#reviewList');
     const sel = $('#fbProduct');
@@ -231,7 +242,7 @@
           <strong>${escapeHtml(r.name || 'Guest')}</strong>
           <span class="stars">${'★'.repeat(r.rating || 0)}${'☆'.repeat(5 - (r.rating || 0))}</span>
         </div>
-        <div class="review-meta">${escapeHtml(r.reaction || '')} · ${escapeHtml(r.product || 'General')}${when ? ' · ' + escapeHtml(when) : ''}</div>
+        <div class="review-meta">${reactionEmoji(r.reaction) ? reactionEmoji(r.reaction) + ' ' : ''}${escapeHtml(r.reaction || '')} · ${escapeHtml(r.product || 'General')}${when ? ' · ' + escapeHtml(when) : ''}</div>
         ${r.comment ? `<p>${escapeHtml(r.comment)}</p>` : '<p style="opacity:.55">No written comment</p>'}
       </article>`;
     }).join('');
