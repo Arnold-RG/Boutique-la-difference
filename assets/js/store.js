@@ -164,20 +164,94 @@
     if (!host || !band) return;
     const items = []
       .concat((state.data.discounts || []).filter(d => d.active !== false).map(d => ({
-        badge: 'Discount', title: d.title, body: d.detail || d.description || ''
+        badge: 'Discount', title: d.title, body: d.detail || d.description || '', image: d.image || ''
       })))
       .concat((state.data.events || []).filter(e => e.active !== false).map(e => ({
-        badge: 'Event', title: e.title, body: [e.date, e.detail || e.description].filter(Boolean).join(' · ')
+        badge: 'Event', title: e.title, body: [e.date, e.detail || e.description].filter(Boolean).join(' · '), image: e.image || ''
       })));
     if (!items.length) { band.hidden = true; return; }
     band.hidden = false;
     host.innerHTML = items.slice(0, 6).map(i => `
-      <div class="promo-item">
+      <div class="promo-item${i.image ? ' has-img' : ''}">
+        ${i.image ? `<img class="promo-img" src="${escapeAttr(i.image)}" alt="">` : ''}
         <span class="badge-sale">${escapeHtml(i.badge)}</span>
         <h4>${escapeHtml(i.title || 'Update')}</h4>
         <p>${escapeHtml(i.body || '')}</p>
       </div>
     `).join('');
+  }
+
+  function renderReviews() {
+    const list = $('#reviewList');
+    const sel = $('#fbProduct');
+    if (sel) {
+      const cur = sel.value;
+      const opts = ['General service'].concat(
+        activeProducts().slice(0, 40).map(p => p.name)
+      );
+      sel.innerHTML = opts.map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join('');
+      if (opts.includes(cur)) sel.value = cur;
+    }
+    if (!list) return;
+    const reviews = (state.data.reviews || []).slice(0, 8);
+    if (!reviews.length) {
+      list.innerHTML = '<div class="empty-state"><strong>Be the first</strong>Leave a rating — it helps us improve every day.</div>';
+      return;
+    }
+    list.innerHTML = reviews.map(r => `
+      <article class="review-card">
+        <div class="review-top">
+          <strong>${escapeHtml(r.name || 'Guest')}</strong>
+          <span class="stars">${'★'.repeat(r.rating || 0)}${'☆'.repeat(5 - (r.rating || 0))}</span>
+        </div>
+        <div class="review-meta">${escapeHtml(r.reaction || '')} · ${escapeHtml(r.product || 'General')}</div>
+        <p>${escapeHtml(r.comment || '')}</p>
+      </article>`).join('');
+  }
+
+  function wireFeedback() {
+    const form = $('#feedbackForm');
+    if (!form || form.dataset.wired) return;
+    form.dataset.wired = '1';
+    const setStars = (n) => {
+      $('#fbRating').value = String(n);
+      $$('#starPick [data-star]').forEach(b => {
+        b.classList.toggle('on', Number(b.dataset.star) <= n);
+      });
+    };
+    setStars(5);
+    $$('#starPick [data-star]').forEach(b => {
+      b.addEventListener('click', () => setStars(Number(b.dataset.star)));
+    });
+    $$('#reactionPick [data-reaction]').forEach(b => {
+      b.addEventListener('click', () => {
+        $$('#reactionPick [data-reaction]').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        $('#fbReaction').value = b.dataset.reaction;
+      });
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const rating = parseInt($('#fbRating').value, 10) || 5;
+      BLD.update(db => {
+        db.reviews = db.reviews || [];
+        db.reviews.unshift({
+          id: BLD.uid('rev'),
+          name: ($('#fbName').value || '').trim() || 'Guest',
+          rating,
+          reaction: $('#fbReaction').value || '',
+          product: $('#fbProduct').value || 'General service',
+          comment: ($('#fbComment').value || '').trim(),
+          at: new Date().toISOString()
+        });
+      });
+      state.data = BLD.get();
+      $('#fbComment').value = '';
+      const thanks = $('#fbThanks');
+      if (thanks) { thanks.hidden = false; setTimeout(() => { thanks.hidden = true; }, 4000); }
+      renderReviews();
+      toast('Thanks for your feedback!');
+    });
   }
 
   function renderAbout() {
@@ -332,16 +406,16 @@
       const t = (now - t0) / 1000;
       ctx.clearRect(0, 0, w, h);
       const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, '#050a14');
-      g.addColorStop(0.45, '#122038');
-      g.addColorStop(1, '#0a1424');
+      g.addColorStop(0, '#07140f');
+      g.addColorStop(0.45, '#123226');
+      g.addColorStop(1, '#0a1c14');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
       for (let i = 0; i < 5; i++) {
         const x = (0.15 + i * 0.18 + Math.sin(t * 0.15 + i) * 0.03) * w;
         const shaft = ctx.createLinearGradient(x, 0, x + 80, h);
-        shaft.addColorStop(0, 'rgba(74,126,200,0.12)');
-        shaft.addColorStop(1, 'rgba(5,10,20,0)');
+        shaft.addColorStop(0, 'rgba(201,162,39,0.10)');
+        shaft.addColorStop(1, 'rgba(7,20,15,0)');
         ctx.fillStyle = shaft;
         ctx.fillRect(x, 0, 90 * devicePixelRatio, h);
       }
@@ -350,8 +424,8 @@
         if (o.x < -0.2 || o.x > 1.2) o.vx *= -1;
         if (o.y < -0.2 || o.y > 1.2) o.vy *= -1;
         const grd = ctx.createRadialGradient(o.x * w, o.y * h, 0, o.x * w, o.y * h, o.r * devicePixelRatio);
-        grd.addColorStop(0, `rgba(74,126,200,${o.a})`);
-        grd.addColorStop(1, 'rgba(5,10,20,0)');
+        grd.addColorStop(0, `rgba(201,162,39,${o.a})`);
+        grd.addColorStop(1, 'rgba(7,20,15,0)');
         ctx.fillStyle = grd;
         ctx.beginPath();
         ctx.arc(o.x * w, o.y * h, o.r * devicePixelRatio, 0, Math.PI * 2);
@@ -480,12 +554,14 @@
     renderTeam();
     renderAds();
     renderGallery();
+    renderReviews();
     setupHeroVideo();
     updateCartBadge();
     renderChat();
   }
 
   function wire() {
+    wireFeedback();
     $('#catalogSearch')?.addEventListener('input', (e) => {
       state.query = e.target.value;
       renderProducts();

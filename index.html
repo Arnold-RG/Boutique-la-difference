@@ -25,6 +25,7 @@
         <a href="#categories">Shop</a>
         <a href="#about">About</a>
         <a href="#team">Team</a>
+        <a href="#feedback">Feedback</a>
         <a href="#ads">Partners</a>
         <a href="#visit">Visit</a>
       </nav>
@@ -113,7 +114,7 @@
       </div>
     </section>
 
-    <section class="section" id="team" style="background:#eef3f0;">
+    <section class="section alt" id="team">
       <div class="container">
         <div class="section-head">
           <div class="eyebrow">People</div>
@@ -121,6 +122,65 @@
           <p>The faces behind Boutique La Différence.</p>
         </div>
         <div class="team-grid" id="teamGrid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="feedback">
+      <div class="container feedback-layout">
+        <div>
+          <div class="section-head" style="margin-bottom:18px">
+            <div class="eyebrow">Your voice</div>
+            <h2>Rate our service &amp; products</h2>
+            <p>Share how shopping with us felt — stars, a quick reaction, and an optional note.</p>
+          </div>
+          <form class="feedback-form" id="feedbackForm">
+            <div class="field">
+              <label for="fbName">Your name</label>
+              <input id="fbName" class="input" placeholder="Optional" maxlength="80">
+            </div>
+            <div class="field">
+              <label>Star rating</label>
+              <div class="star-pick" id="starPick" role="radiogroup" aria-label="Rating">
+                <button type="button" data-star="1" aria-label="1 star">★</button>
+                <button type="button" data-star="2" aria-label="2 stars">★</button>
+                <button type="button" data-star="3" aria-label="3 stars">★</button>
+                <button type="button" data-star="4" aria-label="4 stars">★</button>
+                <button type="button" data-star="5" aria-label="5 stars">★</button>
+              </div>
+              <input type="hidden" id="fbRating" value="5">
+            </div>
+            <div class="field">
+              <label>Reaction</label>
+              <div class="reaction-pick" id="reactionPick">
+                <button type="button" class="reaction-btn active" data-reaction="Loved it">Loved it</button>
+                <button type="button" class="reaction-btn" data-reaction="Happy">Happy</button>
+                <button type="button" class="reaction-btn" data-reaction="Okay">Okay</button>
+                <button type="button" class="reaction-btn" data-reaction="Needs work">Needs work</button>
+                <button type="button" class="reaction-btn" data-reaction="Disappointed">Disappointed</button>
+              </div>
+              <input type="hidden" id="fbReaction" value="Loved it">
+            </div>
+            <div class="field">
+              <label for="fbProduct">About</label>
+              <select id="fbProduct">
+                <option value="General service">General service</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fbComment">Comment</label>
+              <textarea id="fbComment" rows="3" placeholder="What stood out — products, staff, prices…" maxlength="500"></textarea>
+            </div>
+            <button type="submit" class="btn btn-solid">Send feedback</button>
+            <p class="feedback-note" id="fbThanks" hidden>Thank you — your feedback was saved.</p>
+          </form>
+        </div>
+        <div>
+          <div class="section-head" style="margin-bottom:18px">
+            <div class="eyebrow">Recent</div>
+            <h2>What customers say</h2>
+          </div>
+          <div class="review-list" id="reviewList"></div>
+        </div>
       </div>
     </section>
 
@@ -184,6 +244,7 @@
         <p><a href="#catalog">Catalog</a></p>
         <p><a href="#about">About</a></p>
         <p><a href="#team">Team</a></p>
+        <p><a href="#feedback">Feedback</a></p>
         <p><a href="#ads">Partners</a></p>
       </div>
       <div>

@@ -89,7 +89,7 @@ Boutique-la-difference/
 │   │   └── admin.css          # Admin dark theme
 │   └── js/
 │       ├── data.js            # Shared store · Excel/CSV/Sheets
-│       ├── auth.js            # Password + TOTP security
+│       ├── auth.js            # Username + password security
 │       ├── store.js           # Public UI · cart · chat
 │       ├── admin.js           # Dashboard shell · products · settings
 │       └── admin-ops.js       # Sales · CCTV · staff · debts · ads …
@@ -107,8 +107,7 @@ Boutique-la-difference/
 ### Online
 1. Open the [live shop](https://arnold-rg.github.io/Boutique-la-difference/).
 2. Open [admin](https://arnold-rg.github.io/Boutique-la-difference/admin/).
-3. Sign in with the fixed owner username, password, and **6-digit authenticator code**.
-4. First time / new phone: use **Connect / reconnect authenticator app** and scan the QR.
+3. Sign in with the fixed owner username and password.
 
 ### Local
 1. Clone the repo:
@@ -146,7 +145,6 @@ Template: [`data/catalog.template.csv`](data/catalog.template.csv)
 - Public site: **no** customer registration or login.
 - Admin username is fixed (`Family@nbr1`) and not editable in the UI.
 - Password verified with **PBKDF2-SHA256** (210,000 iterations).
-- Second factor: **TOTP** from an authenticator app (scan QR to enroll / reconnect).
 - Sessions last **8 hours** (session storage).
 
 ---

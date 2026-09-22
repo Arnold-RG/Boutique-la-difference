@@ -34,6 +34,7 @@
       ['logistics', 'Logistics'],
       ['cctv', 'Camera security'],
       ['chat', 'Customer service'],
+      ['reviews', 'Reviews & feedback'],
       ['policies', 'Policy rules']
     ]},
     { section: 'Website', items: [
@@ -63,6 +64,7 @@
     logistics: 'Logistics',
     cctv: 'Camera security',
     chat: 'Customer service chat',
+    reviews: 'Reviews & feedback',
     policies: 'Policy rules',
     team: 'Our team (website)',
     ads: 'Advertise other businesses',
@@ -189,10 +191,17 @@
 
   function barcodeHtml() {
     return `
-      <div class="card">
-        <div class="card-head"><h2>Scan / enter barcode</h2></div>
-        <p style="color:var(--muted);font-size:.9rem">Use a USB barcode scanner (acts as keyboard) or type the code, then press Enter to look up price &amp; stock.</p>
-        <div class="field"><label>Barcode / SKU</label><input id="bcInput" class="input" placeholder="Scan here…" autofocus></div>
+      <div class="card styled-panel">
+        <div class="card-head"><h2>Barcode scanner</h2></div>
+        <p style="color:var(--muted);font-size:.9rem;margin-top:0">Point the camera at a product barcode, or type / use a USB scanner, then press Enter.</p>
+        <div class="scanner-wrap">
+          <div id="bcReader" class="scanner-view"></div>
+          <div class="row-actions" style="margin-top:10px">
+            <button class="btn btn-solid btn-sm" id="btnCamStart">Start camera</button>
+            <button class="btn btn-outline btn-sm" id="btnCamStop">Stop camera</button>
+          </div>
+        </div>
+        <div class="field" style="margin-top:16px"><label>Barcode / SKU</label><input id="bcInput" class="input" placeholder="Code appears here…"></div>
         <div id="bcResult" class="help" style="margin-top:12px">Waiting for scan…</div>
         <div class="row-actions" style="margin-top:12px">
           <button class="btn btn-solid btn-sm" id="btnBcSale" hidden>Record 1 unit sale</button>
@@ -200,22 +209,57 @@
       </div>`;
   }
 
+  let bcScanner = null;
+
   function wireBarcode(ctx) {
     const input = $('#bcInput');
     const result = $('#bcResult');
     const btn = $('#btnBcSale');
     let found = null;
-    function lookup() {
+
+    async function stopCam() {
+      try {
+        if (bcScanner) {
+          await bcScanner.stop();
+          await bcScanner.clear();
+          bcScanner = null;
+        }
+      } catch (e) {}
+    }
+
+    function lookup(code) {
+      if (code != null) input.value = String(code).trim();
       found = BLD.findByBarcode(input.value);
       if (!found) {
-        result.innerHTML = '<strong>No product found</strong> for that code. Add barcode on the product edit form.';
+        result.innerHTML = '<strong>No product found</strong> for that code. Add a barcode on the product form.';
         btn.hidden = true;
         return;
       }
       result.innerHTML = `<strong>${esc(found.name)}</strong><br>Price: ${money(found.price)} · Stock: ${found.stock} · Category: ${esc(found.category)}`;
       btn.hidden = false;
     }
+
     input?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lookup(); } });
+    $('#btnCamStart')?.addEventListener('click', async () => {
+      if (!global.Html5Qrcode) {
+        alert('Camera scanner library not loaded. Refresh the page.');
+        return;
+      }
+      await stopCam();
+      bcScanner = new global.Html5Qrcode('bcReader');
+      try {
+        await bcScanner.start(
+          { facingMode: 'environment' },
+          { fps: 8, qrbox: { width: 240, height: 140 } },
+          (decoded) => { lookup(decoded); },
+          () => {}
+        );
+      } catch (e) {
+        alert('Camera permission denied or unavailable. You can still type the barcode.');
+        bcScanner = null;
+      }
+    });
+    $('#btnCamStop')?.addEventListener('click', stopCam);
     btn?.addEventListener('click', () => {
       if (!found) return;
       BLD.update(db => {
@@ -232,7 +276,7 @@
         });
       });
       BLD.logActivity('barcode', 'Sold via barcode: ' + found.name);
-      ctx.refresh();
+      stopCam().then(() => ctx.refresh());
     });
     setTimeout(() => input?.focus(), 50);
   }
@@ -244,14 +288,14 @@
       <td><button class="btn btn-danger btn-sm" data-pdel="${p.id}">Delete</button></td></tr>`).join('') ||
       '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No purchases</td></tr>';
     return `
-      <div class="card">
+      <div class="card styled-panel">
         <div class="card-head"><h2>Low stock (≤5)</h2></div>
         <div class="table-wrap"><table><thead><tr><th>Product</th><th>Stock</th><th>Price</th></tr></thead>
         <tbody>${low.map(p => `<tr><td>${esc(p.name)}</td><td>${p.stock}</td><td>${money(p.price, data)}</td></tr>`).join('') ||
           '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:16px">All stock levels healthy</td></tr>'}
         </tbody></table></div>
       </div>
-      <div class="card">
+      <div class="card styled-panel">
         <div class="card-head"><h2>Record purchase / restock</h2></div>
         <div class="form-grid">
           <div class="field"><label>Supplier</label><input id="purSup" class="input"></div>
@@ -260,7 +304,7 @@
         </div>
         <button class="btn btn-solid btn-sm" id="btnAddPur" style="margin-top:8px">Save purchase</button>
       </div>
-      <div class="card"><div class="card-head"><h2>Purchase history</h2></div>
+      <div class="card styled-panel"><div class="card-head"><h2>Purchase history</h2></div>
         <div class="table-wrap"><table><thead><tr><th>Date</th><th>Supplier</th><th>Note</th><th>Total</th><th></th></tr></thead><tbody>${purch}</tbody></table></div>
       </div>`;
   }
@@ -287,7 +331,7 @@
 
   function activityHtml(data) {
     return `
-      <div class="card">
+      <div class="card styled-panel">
         <div class="card-head"><h2>Log daily note</h2></div>
         <div class="form-grid">
           <div class="field"><label>Type</label>
@@ -297,7 +341,7 @@
         </div>
         <button class="btn btn-solid btn-sm" id="btnAct" style="margin-top:8px">Add activity</button>
       </div>
-      <div class="card"><div class="table-wrap"><table>
+      <div class="card styled-panel"><div class="table-wrap"><table>
         <thead><tr><th>When</th><th>Type</th><th>Message</th><th></th></tr></thead>
         <tbody>${(data.activities || []).map(a => `
           <tr><td>${esc((a.at || '').replace('T',' ').slice(0,16))}</td><td>${esc(a.type)}</td><td>${esc(a.message)}</td>
@@ -318,31 +362,71 @@
   }
 
   function employeesHtml(data) {
-    const emp = (data.employees || []).map(e => `
-      <tr><td><strong>${esc(e.name)}</strong><div style="font-size:.75rem;color:var(--muted)">${esc(e.role || '')}</div></td>
-      <td>${esc(e.phone || '')}</td><td>${money(e.wage || 0, data)}/${esc(e.wageType || 'month')}</td>
-      <td class="row-actions"><button class="btn btn-danger btn-sm" data-edel="${e.id}">Delete</button></td></tr>`).join('') ||
-      '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No employees</td></tr>';
+    const cards = (data.employees || []).map(e => `
+      <article class="emp-card">
+        <div class="emp-card-top">
+          <div class="emp-avatar">${e.photo ? `<img src="${esc(e.photo)}" alt="">` : `<span>${esc((e.name || '?').slice(0, 1).toUpperCase())}</span>`}</div>
+          <div>
+            <h3>${esc(e.name)}</h3>
+            <div class="emp-role">${esc(e.role || 'Staff')} · <span class="pill ${e.status === 'inactive' ? 'pill-muted' : 'pill-ok'}">${esc(e.status || 'active')}</span></div>
+          </div>
+        </div>
+        <div class="emp-meta">
+          <div><span>Phone</span>${esc(e.phone || '—')}</div>
+          <div><span>Email</span>${esc(e.email || '—')}</div>
+          <div><span>ID / NID</span>${esc(e.nationalId || '—')}</div>
+          <div><span>Hired</span>${esc(e.hireDate || '—')}</div>
+          <div><span>Wage</span>${money(e.wage || 0, data)} / ${esc(e.wageType || 'month')}</div>
+          <div><span>Bank</span>${esc(e.bankAccount || '—')}</div>
+          <div class="full"><span>Address</span>${esc(e.address || '—')}</div>
+          <div class="full"><span>Emergency</span>${esc(e.emergencyContact || '—')}</div>
+          ${e.notes ? `<div class="full"><span>Notes</span>${esc(e.notes)}</div>` : ''}
+        </div>
+        <div class="row-actions">
+          <button class="btn btn-outline btn-sm" data-eedit="${e.id}">Edit</button>
+          <button class="btn btn-danger btn-sm" data-edel="${e.id}">Delete</button>
+        </div>
+      </article>`).join('') || '<p style="color:var(--muted)">No employees saved yet.</p>';
+
     const shifts = (data.shifts || []).map(s => `
       <tr><td>${esc(s.employee || '')}</td><td>${esc(s.day || '')}</td><td>${esc(s.start || '')} – ${esc(s.end || '')}</td>
       <td><button class="btn btn-danger btn-sm" data-shdel="${s.id}">Delete</button></td></tr>`).join('') ||
       '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No shifts</td></tr>';
+
     return `
-      <div class="card">
-        <div class="card-head"><h2>Add employee</h2></div>
+      <div class="card styled-panel">
+        <div class="card-head"><h2 id="empFormTitle">Add employee</h2></div>
+        <input type="hidden" id="empEditId" value="">
         <div class="form-grid">
-          <div class="field"><label>Name</label><input id="empName" class="input"></div>
-          <div class="field"><label>Role</label><input id="empRole" class="input" placeholder="Cashier"></div>
-          <div class="field"><label>Phone</label><input id="empPhone" class="input"></div>
-          <div class="field"><label>Wage</label><input id="empWage" type="number" class="input"></div>
+          <div class="field"><label>Full name *</label><input id="empName" class="input" placeholder="e.g. Mugisha Alain"></div>
+          <div class="field"><label>Role / title</label><input id="empRole" class="input" placeholder="Cashier, Manager…"></div>
+          <div class="field"><label>Phone</label><input id="empPhone" class="input" placeholder="+250…"></div>
+          <div class="field"><label>Email</label><input id="empEmail" class="input" type="email"></div>
+          <div class="field"><label>National ID</label><input id="empNid" class="input"></div>
+          <div class="field"><label>Hire date</label><input id="empHire" class="input" type="date"></div>
+          <div class="field"><label>Wage amount</label><input id="empWage" type="number" class="input"></div>
           <div class="field"><label>Wage type</label><select id="empWageType"><option>month</option><option>day</option><option>hour</option></select></div>
+          <div class="field"><label>Bank / MoMo account</label><input id="empBank" class="input"></div>
+          <div class="field"><label>Status</label><select id="empStatus"><option value="active">Active</option><option value="inactive">Inactive</option><option value="on-leave">On leave</option></select></div>
+          <div class="field full"><label>Home address</label><input id="empAddr" class="input"></div>
+          <div class="field full"><label>Emergency contact</label><input id="empEmerg" class="input" placeholder="Name + phone"></div>
+          <div class="field full"><label>Notes</label><textarea id="empNotes" rows="2"></textarea></div>
+          <div class="field full"><label>Photo (from files)</label>
+            <input type="file" id="empPhoto" accept="image/*" class="input">
+            <input type="hidden" id="empPhotoData" value="">
+            <div id="empPhotoPrev" class="photo-prev"></div>
+          </div>
         </div>
-        <button class="btn btn-solid btn-sm" id="btnEmp" style="margin-top:8px">Save employee</button>
+        <div class="row-actions" style="margin-top:12px">
+          <button class="btn btn-solid btn-sm" id="btnEmp">Save employee</button>
+          <button class="btn btn-ghost btn-sm" id="btnEmpClear">Clear form</button>
+        </div>
       </div>
-      <div class="card"><div class="card-head"><h2>Team</h2></div>
-        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Wage</th><th></th></tr></thead><tbody>${emp}</tbody></table></div>
+      <div class="card styled-panel">
+        <div class="card-head"><h2>Saved employees</h2></div>
+        <div class="emp-grid">${cards}</div>
       </div>
-      <div class="card">
+      <div class="card styled-panel">
         <div class="card-head"><h2>Add shift</h2></div>
         <div class="form-grid">
           <div class="field"><label>Employee</label><input id="shEmp" class="input" list="empList"></div>
@@ -353,24 +437,81 @@
         <datalist id="empList">${(data.employees || []).map(e => `<option value="${esc(e.name)}">`).join('')}</datalist>
         <button class="btn btn-solid btn-sm" id="btnShift" style="margin-top:8px">Save shift</button>
       </div>
-      <div class="card"><div class="card-head"><h2>Schedule</h2></div>
+      <div class="card styled-panel"><div class="card-head"><h2>Schedule</h2></div>
         <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Day</th><th>Hours</th><th></th></tr></thead><tbody>${shifts}</tbody></table></div>
       </div>`;
   }
 
+  function clearEmpForm() {
+    $('#empEditId').value = '';
+    ['empName','empRole','empPhone','empEmail','empNid','empHire','empWage','empBank','empAddr','empEmerg','empNotes','empPhotoData'].forEach(id => {
+      const el = $('#' + id); if (el) el.value = '';
+    });
+    if ($('#empWageType')) $('#empWageType').value = 'month';
+    if ($('#empStatus')) $('#empStatus').value = 'active';
+    if ($('#empPhoto')) $('#empPhoto').value = '';
+    if ($('#empPhotoPrev')) $('#empPhotoPrev').innerHTML = '';
+    if ($('#empFormTitle')) $('#empFormTitle').textContent = 'Add employee';
+  }
+
+  function fillEmpForm(e) {
+    $('#empEditId').value = e.id;
+    $('#empName').value = e.name || '';
+    $('#empRole').value = e.role || '';
+    $('#empPhone').value = e.phone || '';
+    $('#empEmail').value = e.email || '';
+    $('#empNid').value = e.nationalId || '';
+    $('#empHire').value = e.hireDate || '';
+    $('#empWage').value = e.wage || '';
+    $('#empWageType').value = e.wageType || 'month';
+    $('#empBank').value = e.bankAccount || '';
+    $('#empStatus').value = e.status || 'active';
+    $('#empAddr').value = e.address || '';
+    $('#empEmerg').value = e.emergencyContact || '';
+    $('#empNotes').value = e.notes || '';
+    $('#empPhotoData').value = e.photo || '';
+    $('#empPhotoPrev').innerHTML = e.photo ? `<img src="${e.photo}" alt="">` : '';
+    $('#empFormTitle').textContent = 'Edit employee';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   function wireEmployees(ctx) {
+    $('#empPhoto')?.addEventListener('change', async () => {
+      const f = $('#empPhoto').files?.[0];
+      if (!f) return;
+      const dataUrl = await BLD.readFileAsDataUrl(f);
+      $('#empPhotoData').value = dataUrl;
+      $('#empPhotoPrev').innerHTML = `<img src="${dataUrl}" alt="">`;
+    });
+    $('#btnEmpClear')?.addEventListener('click', clearEmpForm);
     $('#btnEmp')?.addEventListener('click', () => {
       if (!$('#empName').value.trim()) return alert('Name required');
+      const payload = {
+        name: $('#empName').value.trim(),
+        role: $('#empRole').value.trim(),
+        phone: $('#empPhone').value.trim(),
+        email: $('#empEmail').value.trim(),
+        nationalId: $('#empNid').value.trim(),
+        hireDate: $('#empHire').value,
+        wage: parseFloat($('#empWage').value) || 0,
+        wageType: $('#empWageType').value,
+        bankAccount: $('#empBank').value.trim(),
+        status: $('#empStatus').value,
+        address: $('#empAddr').value.trim(),
+        emergencyContact: $('#empEmerg').value.trim(),
+        notes: $('#empNotes').value.trim(),
+        photo: $('#empPhotoData').value || ''
+      };
+      const editId = $('#empEditId').value;
       BLD.update(db => {
-        db.employees.unshift({
-          id: BLD.uid('emp'),
-          name: $('#empName').value.trim(),
-          role: $('#empRole').value.trim(),
-          phone: $('#empPhone').value.trim(),
-          wage: parseFloat($('#empWage').value) || 0,
-          wageType: $('#empWageType').value
-        });
+        if (editId) {
+          const i = db.employees.findIndex(x => x.id === editId);
+          if (i >= 0) db.employees[i] = Object.assign({}, db.employees[i], payload);
+        } else {
+          db.employees.unshift(Object.assign({ id: BLD.uid('emp'), createdAt: new Date().toISOString() }, payload));
+        }
       });
+      BLD.logActivity('employee', (editId ? 'Updated' : 'Added') + ' employee ' + payload.name);
       ctx.refresh();
     });
     $('#btnShift')?.addEventListener('click', () => {
@@ -385,12 +526,52 @@
       });
       ctx.refresh();
     });
+    $$('[data-eedit]').forEach(b => b.addEventListener('click', () => {
+      const e = BLD.get().employees.find(x => x.id === b.dataset.eedit);
+      if (e) fillEmpForm(e);
+    }));
     $$('[data-edel]').forEach(b => b.addEventListener('click', () => {
+      if (!confirm('Delete this employee record?')) return;
       BLD.update(db => { db.employees = db.employees.filter(e => e.id !== b.dataset.edel); });
       ctx.refresh();
     }));
     $$('[data-shdel]').forEach(b => b.addEventListener('click', () => {
       BLD.update(db => { db.shifts = db.shifts.filter(e => e.id !== b.dataset.shdel); });
+      ctx.refresh();
+    }));
+  }
+
+  function reviewsHtml(data) {
+    const list = data.reviews || [];
+    const avg = list.length ? (list.reduce((a, r) => a + (Number(r.rating) || 0), 0) / list.length).toFixed(1) : '—';
+    const rows = list.map(r => `
+      <tr>
+        <td><strong>${esc(r.name || 'Guest')}</strong>
+          <div style="font-size:.75rem;color:var(--muted)">${esc((r.at || '').replace('T',' ').slice(0,16))}</div>
+        </td>
+        <td>${'★'.repeat(r.rating || 0)}${'☆'.repeat(5 - (r.rating || 0))}</td>
+        <td>${esc(r.reaction || '')}</td>
+        <td>${esc(r.product || 'General')}</td>
+        <td>${esc(r.comment || '')}</td>
+        <td><button class="btn btn-danger btn-sm" data-rdel="${r.id}">Delete</button></td>
+      </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No customer reviews yet</td></tr>';
+    return `
+      <div class="grid-kpi" style="grid-template-columns:repeat(2,1fr)">
+        <div class="kpi"><div class="label">Reviews</div><div class="value">${list.length}</div></div>
+        <div class="kpi"><div class="label">Avg rating</div><div class="value">${avg}</div></div>
+      </div>
+      <div class="card styled-panel">
+        <div class="card-head"><h2>Customer feedback</h2></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Customer</th><th>Stars</th><th>Reaction</th><th>About</th><th>Comment</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+      </div>`;
+  }
+
+  function wireReviews(ctx) {
+    $$('[data-rdel]').forEach(b => b.addEventListener('click', () => {
+      BLD.update(db => { db.reviews = (db.reviews || []).filter(r => r.id !== b.dataset.rdel); });
       ctx.refresh();
     }));
   }
@@ -940,6 +1121,7 @@
     if (tab === 'logistics') return logisticsHtml(data);
     if (tab === 'cctv') return cctvHtml(data);
     if (tab === 'chat') return chatHtml(data);
+    if (tab === 'reviews') return reviewsHtml(data);
     if (tab === 'policies') return policiesHtml(data);
     if (tab === 'team') return teamHtml(data);
     if (tab === 'ads') return adsHtml(data);
@@ -961,6 +1143,7 @@
     if (tab === 'logistics') wireLogistics(ctx);
     if (tab === 'cctv') wireCctv(ctx);
     if (tab === 'chat') wireChat(ctx);
+    if (tab === 'reviews') wireReviews(ctx);
     if (tab === 'policies') wirePolicies(ctx);
     if (tab === 'team') wireTeam(ctx);
     if (tab === 'ads') wireAds(ctx);

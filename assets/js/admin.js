@@ -153,7 +153,7 @@
       </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px">No products yet — import Excel or add manually.</td></tr>`;
 
     return `
-      <div class="card">
+      <div class="card styled-panel">
         <div class="card-head">
           <h2>Catalog</h2>
           <button class="btn btn-solid btn-sm" id="btnAddProduct">Add product</button>
@@ -253,32 +253,34 @@
   function eventsHtml(data) {
     const dRows = data.discounts.map(d => `
       <tr>
+        <td>${d.image ? `<img class="thumb" src="${escAttr(d.image)}" alt="">` : ''}</td>
         <td><strong>${esc(d.title)}</strong><div style="color:var(--muted);font-size:.8rem">${esc(d.detail || '')}</div></td>
         <td>${d.active !== false ? '<span class="pill pill-ok">Live</span>' : '<span class="pill pill-muted">Off</span>'}</td>
         <td class="row-actions">
           <button class="btn btn-outline btn-sm" data-dedit="${d.id}">Edit</button>
           <button class="btn btn-danger btn-sm" data-ddel="${d.id}">Delete</button>
         </td>
-      </tr>`).join('') || `<tr><td colspan="3" style="color:var(--muted);padding:20px;text-align:center">No discounts yet</td></tr>`;
+      </tr>`).join('') || `<tr><td colspan="4" style="color:var(--muted);padding:20px;text-align:center">No discounts yet</td></tr>`;
 
     const eRows = data.events.map(e => `
       <tr>
+        <td>${e.image ? `<img class="thumb" src="${escAttr(e.image)}" alt="">` : ''}</td>
         <td><strong>${esc(e.title)}</strong><div style="color:var(--muted);font-size:.8rem">${esc(e.date || '')} · ${esc(e.detail || '')}</div></td>
         <td>${e.active !== false ? '<span class="pill pill-ok">Live</span>' : '<span class="pill pill-muted">Off</span>'}</td>
         <td class="row-actions">
           <button class="btn btn-outline btn-sm" data-eedit="${e.id}">Edit</button>
           <button class="btn btn-danger btn-sm" data-edel="${e.id}">Delete</button>
         </td>
-      </tr>`).join('') || `<tr><td colspan="3" style="color:var(--muted);padding:20px;text-align:center">No events yet</td></tr>`;
+      </tr>`).join('') || `<tr><td colspan="4" style="color:var(--muted);padding:20px;text-align:center">No events yet</td></tr>`;
 
     return `
-      <div class="card">
+      <div class="card styled-panel">
         <div class="card-head"><h2>Upcoming discounts</h2><button class="btn btn-solid btn-sm" id="btnAddDisc">Add discount</button></div>
-        <div class="table-wrap"><table><thead><tr><th>Discount</th><th>Status</th><th></th></tr></thead><tbody>${dRows}</tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Discount</th><th>Status</th><th></th></tr></thead><tbody>${dRows}</tbody></table></div>
       </div>
-      <div class="card">
+      <div class="card styled-panel">
         <div class="card-head"><h2>Events</h2><button class="btn btn-solid btn-sm" id="btnAddEvent">Add event</button></div>
-        <div class="table-wrap"><table><thead><tr><th>Event</th><th>Status</th><th></th></tr></thead><tbody>${eRows}</tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Event</th><th>Status</th><th></th></tr></thead><tbody>${eRows}</tbody></table></div>
       </div>`;
   }
 
@@ -354,14 +356,21 @@
             <div class="field"><label>Cost price</label><input id="pCost" type="number" min="0" step="1" class="input" value="${p.cost || 0}"></div>
             <div class="field"><label>Unit</label><input id="pUnit" class="input" value="${escAttr(p.unit || 'unit')}"></div>
             <div class="field"><label>Stock</label><input id="pStock" type="number" class="input" value="${p.stock || 0}"></div>
-            <div class="field"><label>Image</label>
+            <div class="field"><label>Image source</label>
               <select id="pImg">
                 <option value="">None</option>
+                <option value="__file__">Upload from files…</option>
                 <option value="__url__">External URL…</option>
                 ${mediaOpts}
               </select>
             </div>
-            <div class="field full" id="pImgUrlWrap" hidden><label>Image URL</label><input id="pImgUrl" class="input" value="${p.image && !String(p.image).startsWith('media:') ? escAttr(p.image) : ''}"></div>
+            <div class="field full" id="pImgFileWrap" hidden>
+              <label>Choose image file</label>
+              <input type="file" id="pImgFile" accept="image/*" class="input">
+              <input type="hidden" id="pImgData" value="${p.image && String(p.image).startsWith('data:') ? escAttr(p.image) : ''}">
+              <div id="pImgPrev" class="photo-prev">${p.image && String(p.image).startsWith('data:') ? `<img src="${escAttr(p.image)}" alt="">` : ''}</div>
+            </div>
+            <div class="field full" id="pImgUrlWrap" hidden><label>Image URL</label><input id="pImgUrl" class="input" value="${p.image && !String(p.image).startsWith('media:') && !String(p.image).startsWith('data:') ? escAttr(p.image) : ''}"></div>
             <div class="field full"><label>Description</label><textarea id="pDesc" rows="3">${esc(p.description || '')}</textarea></div>
             <div class="field"><label><input type="checkbox" id="pFeat" ${p.featured ? 'checked' : ''}> Featured</label></div>
             <div class="field"><label><input type="checkbox" id="pActive" ${p.active !== false ? 'checked' : ''}> Live on website</label></div>
@@ -373,7 +382,7 @@
         </div></div>`;
     }
     if (modal.type === 'discount' || modal.type === 'event') {
-      const item = modal.item || { title: '', detail: '', date: '', active: true };
+      const item = modal.item || { title: '', detail: '', date: '', image: '', active: true };
       return `
         <div class="modal-scrim" id="modalScrim"><div class="modal">
           <h3 class="display">${item.id ? 'Edit' : 'Add'} ${modal.type}</h3>
@@ -381,6 +390,11 @@
             <div class="field full"><label>Title</label><input id="evTitle" class="input" value="${escAttr(item.title || '')}"></div>
             ${modal.type === 'event' ? `<div class="field full"><label>Date</label><input id="evDate" class="input" value="${escAttr(item.date || '')}" placeholder="e.g. 28 Sep 2026"></div>` : ''}
             <div class="field full"><label>Details</label><textarea id="evDetail" rows="3">${esc(item.detail || '')}</textarea></div>
+            <div class="field full"><label>Image (from files)</label>
+              <input type="file" id="evImgFile" accept="image/*" class="input">
+              <input type="hidden" id="evImgData" value="${escAttr(item.image || '')}">
+              <div id="evImgPrev" class="photo-prev">${item.image ? `<img src="${escAttr(item.image)}" alt="">` : ''}</div>
+            </div>
             <div class="field"><label><input type="checkbox" id="evActive" ${item.active !== false ? 'checked' : ''}> Show on website</label></div>
           </div>
           <div class="row-actions" style="margin-top:16px;justify-content:flex-end">
@@ -561,15 +575,28 @@
     $('#modalScrim')?.addEventListener('click', (e) => { if (e.target.id === 'modalScrim') { modal = null; renderDashboard(); } });
     if (modal.type === 'product') {
       const sel = $('#pImg');
-      const wrap = $('#pImgUrlWrap');
-      const sync = () => { wrap.hidden = sel.value !== '__url__'; };
+      const urlWrap = $('#pImgUrlWrap');
+      const fileWrap = $('#pImgFileWrap');
+      const sync = () => {
+        if (urlWrap) urlWrap.hidden = sel.value !== '__url__';
+        if (fileWrap) fileWrap.hidden = sel.value !== '__file__';
+      };
       sel?.addEventListener('change', sync);
-      if (modal.product?.image && !String(modal.product.image).startsWith('media:')) {
-        sel.value = '__url__'; sync();
-      }
+      const img = modal.product?.image || '';
+      if (img && String(img).startsWith('data:')) { sel.value = '__file__'; sync(); }
+      else if (img && !String(img).startsWith('media:')) { sel.value = '__url__'; sync(); }
+      else sync();
+      $('#pImgFile')?.addEventListener('change', async () => {
+        const f = $('#pImgFile').files?.[0];
+        if (!f) return;
+        const dataUrl = await BLD.readFileAsDataUrl(f);
+        $('#pImgData').value = dataUrl;
+        $('#pImgPrev').innerHTML = `<img src="${dataUrl}" alt="">`;
+      });
       $('#modalSaveProduct')?.addEventListener('click', () => {
         let image = $('#pImg').value;
         if (image === '__url__') image = $('#pImgUrl').value.trim();
+        else if (image === '__file__') image = $('#pImgData').value || '';
         const payload = {
           name: $('#pName').value.trim(),
           sku: $('#pSku').value.trim(),
@@ -599,11 +626,19 @@
       });
     }
     if (modal.type === 'discount' || modal.type === 'event') {
+      $('#evImgFile')?.addEventListener('change', async () => {
+        const f = $('#evImgFile').files?.[0];
+        if (!f) return;
+        const dataUrl = await BLD.readFileAsDataUrl(f);
+        $('#evImgData').value = dataUrl;
+        $('#evImgPrev').innerHTML = `<img src="${dataUrl}" alt="">`;
+      });
       $('#modalSaveEv')?.addEventListener('click', () => {
         const payload = {
           title: $('#evTitle').value.trim(),
           detail: $('#evDetail').value.trim(),
           date: $('#evDate')?.value.trim() || '',
+          image: $('#evImgData')?.value || '',
           active: $('#evActive').checked
         };
         if (!payload.title) return alert('Title required');

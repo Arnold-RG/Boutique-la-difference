@@ -70,7 +70,8 @@
       ads: [],
       team: [],
       logistics: [],
-      orders: []
+      orders: [],
+      reviews: []
     };
   }
 
@@ -239,6 +240,30 @@
     return load().products.find(p => p.barcode === c || p.sku === c || p.id === c) || null;
   }
 
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Could not read file'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function saveUploadedImage(file, kind, caption) {
+    const dataUrl = await readFileAsDataUrl(file);
+    const id = uid('m');
+    update(db => {
+      db.media.unshift({
+        id,
+        kind: kind || 'product',
+        caption: caption || file.name,
+        dataUrl,
+        createdAt: new Date().toISOString()
+      });
+    });
+    return { id, dataUrl, ref: 'media:' + id };
+  }
+
   function importProductRows(objects, mode) {
     const mapped = objects.map(normalizeProduct).filter(Boolean);
     return update(db => {
@@ -358,6 +383,8 @@
     todayKey,
     revenueStats,
     logActivity,
-    findByBarcode
+    findByBarcode,
+    readFileAsDataUrl,
+    saveUploadedImage
   };
 })(window);
