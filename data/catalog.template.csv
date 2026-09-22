@@ -1,8 +1,8 @@
-id,sku,name,category,price,unit,stock,description,image,featured,active
-,,Example Rice 25kg,food,28000,bag,40,Long grain rice — replace with real stock,,false,true
-,,Example Cooking Oil 5L,food,15000,bottle,25,Vegetable oil,,false,true
-,,Example Mineral Water 1.5L,drinks,700,bottle,100,Packaged water,,false,true
-,,Example LED Bulb,electronics,2500,pcs,30,Energy saving,,false,true
-,,Example Frying Pan,home,8500,pcs,12,Non-stick,,false,true
-,,Example Screwdriver Set,tools,6000,set,8,Basic toolkit,,false,true
-,,Example Body Lotion,body,4500,bottle,20,Skin care,,false,true
+id,sku,barcode,name,category,price,cost,unit,stock,description,image,featured,active
+,,100001,Example Rice 25kg,food,28000,22000,bag,40,Long grain rice — replace with real stock,,false,true
+,,100002,Example Cooking Oil 5L,food,15000,12000,bottle,25,Vegetable oil,,false,true
+,,100003,Example Mineral Water 1.5L,drinks,700,500,bottle,100,Packaged water,,false,true
+,,100004,Example LED Bulb,electronics,2500,1800,pcs,30,Energy saving,,false,true
+,,100005,Example Frying Pan,home,8500,6000,pcs,12,Non-stick,,false,true
+,,100006,Example Screwdriver Set,tools,6000,4000,set,8,Basic toolkit,,false,true
+,,100007,Example Body Lotion,body,4500,3000,bottle,20,Skin care,,false,true
