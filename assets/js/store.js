@@ -332,16 +332,16 @@
       const t = (now - t0) / 1000;
       ctx.clearRect(0, 0, w, h);
       const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, '#07140f');
-      g.addColorStop(0.45, '#123226');
-      g.addColorStop(1, '#0a1c14');
+      g.addColorStop(0, '#050a14');
+      g.addColorStop(0.45, '#122038');
+      g.addColorStop(1, '#0a1424');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
       for (let i = 0; i < 5; i++) {
         const x = (0.15 + i * 0.18 + Math.sin(t * 0.15 + i) * 0.03) * w;
         const shaft = ctx.createLinearGradient(x, 0, x + 80, h);
-        shaft.addColorStop(0, 'rgba(201,162,39,0.10)');
-        shaft.addColorStop(1, 'rgba(7,20,15,0)');
+        shaft.addColorStop(0, 'rgba(74,126,200,0.12)');
+        shaft.addColorStop(1, 'rgba(5,10,20,0)');
         ctx.fillStyle = shaft;
         ctx.fillRect(x, 0, 90 * devicePixelRatio, h);
       }
@@ -350,8 +350,8 @@
         if (o.x < -0.2 || o.x > 1.2) o.vx *= -1;
         if (o.y < -0.2 || o.y > 1.2) o.vy *= -1;
         const grd = ctx.createRadialGradient(o.x * w, o.y * h, 0, o.x * w, o.y * h, o.r * devicePixelRatio);
-        grd.addColorStop(0, `rgba(201,162,39,${o.a})`);
-        grd.addColorStop(1, 'rgba(7,20,15,0)');
+        grd.addColorStop(0, `rgba(74,126,200,${o.a})`);
+        grd.addColorStop(1, 'rgba(5,10,20,0)');
         ctx.fillStyle = grd;
         ctx.beginPath();
         ctx.arc(o.x * w, o.y * h, o.r * devicePixelRatio, 0, Math.PI * 2);
