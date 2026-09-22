@@ -1,11 +1,20 @@
-# Connecting Excel to Boutique La Différence
+# Inventory data (Excel / Sheets)
 
-1. Open `catalog.template.csv` in Microsoft Excel or Google Sheets.
-2. Delete the example rows and add your real inventory (leave `image` empty if you will upload photos in Admin → Images).
-3. Save as `.xlsx` or `.csv`.
-4. In the admin dashboard → **Excel / Sheets**:
-   - Drop the file onto the import zone, or
-   - Paste a Google Sheets URL and click **Sync**.
-5. The public homepage catalog updates from the same data store.
+Use [`catalog.template.csv`](catalog.template.csv) as the master layout for Boutique La Différence products.
 
-Tip: keep one master Google Sheet as the source of truth and sync before opening hours.
+## How to connect
+
+1. Open the template in **Microsoft Excel** or **Google Sheets**.
+2. Replace example rows with real stock (`name`, `category`, `price`, `cost`, `barcode`, `stock`, …).
+3. In the **admin portal** → **Excel / Sheets**:
+   - Drop a `.xlsx` or `.csv` file, **or**
+   - Paste a Google Sheet URL and click **Sync**.
+4. The [public website](https://arnold-rg.github.io/Boutique-la-difference/) catalog updates from the same browser data store (or after sync on each device).
+
+## Tools involved
+
+- Microsoft Excel / Google Sheets — editing inventory  
+- SheetJS — reading Excel in the browser  
+- CSV export from Google Sheets — live sync URL  
+
+See the main [README](../README.md) for the full technology list.
