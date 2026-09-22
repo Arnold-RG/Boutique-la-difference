@@ -623,20 +623,29 @@
     $('#cartScrim')?.addEventListener('click', () => openCart(false));
     $('#btnCheckout')?.addEventListener('click', checkout);
 
+    function isChatOpen() {
+      return !!$('#chatWidget')?.classList.contains('is-open');
+    }
     function setChatOpen(open) {
       const w = $('#chatWidget');
       const fab = $('#chatFab');
       if (!w) return;
-      w.hidden = !open;
+      w.classList.toggle('is-open', !!open);
+      w.setAttribute('aria-hidden', open ? 'false' : 'true');
       if (fab) {
         fab.setAttribute('aria-expanded', open ? 'true' : 'false');
         fab.textContent = open ? 'Close' : 'Chat';
       }
-      if (open) renderChat();
+      if (open) {
+        renderChat();
+        setTimeout(() => $('#chatInput')?.focus(), 50);
+      }
     }
-    $('#chatFab')?.addEventListener('click', () => {
-      const w = $('#chatWidget');
-      setChatOpen(!!w?.hidden);
+    setChatOpen(false);
+    $('#chatFab')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setChatOpen(!isChatOpen());
     });
     $('#chatClose')?.addEventListener('click', (e) => {
       e.preventDefault();
@@ -646,7 +655,7 @@
     $('#chatSend')?.addEventListener('click', sendChat);
     $('#chatInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && $('#chatWidget') && !$('#chatWidget').hidden) setChatOpen(false);
+      if (e.key === 'Escape' && isChatOpen()) setChatOpen(false);
     });
 
     window.addEventListener('bld:store', refresh);
