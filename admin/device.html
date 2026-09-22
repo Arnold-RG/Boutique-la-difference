@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Device verify — Boutique La Différence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,600&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+  <div class="auth-wrap" id="root"></div>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    (function () {
+      const root = document.getElementById('root');
+
+      function parseChallengeFromUrl() {
+        const q = new URLSearchParams(location.search);
+        const raw = q.get('c');
+        if (!raw) return null;
+        try {
+          const json = decodeURIComponent(escape(atob(raw)));
+          return JSON.parse(json);
+        } catch (e) {
+          try { return JSON.parse(atob(raw)); } catch (e2) { return null; }
+        }
+      }
+
+      function loadActive() {
+        const fromUrl = parseChallengeFromUrl();
+        if (fromUrl && fromUrl.target && fromUrl.expiresAt && Date.now() < fromUrl.expiresAt) {
+          try { localStorage.setItem('bld-login-challenge-v1', JSON.stringify(fromUrl)); } catch (e) {}
+          return fromUrl;
+        }
+        return BLDAuth.getChallenge();
+      }
+
+      function render() {
+        const c = loadActive();
+        if (!c) {
+          root.innerHTML = `
+            <div class="auth-card">
+              <span class="badge">Allowed device</span>
+              <h1 class="display">Waiting for admin</h1>
+              <p>On the computer, sign in with the password first. When the verification number appears, open this page again (or use the link from the admin screen), then select the matching number.</p>
+              <button class="btn btn-brass" id="btnRefresh">Refresh</button>
+              <p class="step-note"><a href="index.html" style="color:var(--brass-2)">← Admin login</a></p>
+            </div>`;
+          document.getElementById('btnRefresh').onclick = render;
+          return;
+        }
+
+        root.innerHTML = `
+          <div class="auth-card" style="width:min(460px,100%)">
+            <span class="badge">Select the match</span>
+            <h1 class="display">Tap the number shown on admin</h1>
+            <p>Look at the big number on the admin portal, then tap the same number here.</p>
+            <div class="number-grid">
+              ${c.options.map(n => `<button type="button" class="num-btn" data-n="${n}">${n}</button>`).join('')}
+            </div>
+            <div class="auth-error" id="err"></div>
+            <p class="step-note"><a href="index.html" style="color:var(--brass-2)">← Admin login</a></p>
+          </div>`;
+
+        document.querySelectorAll('.num-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const result = BLDAuth.deviceSolveChallenge(btn.dataset.n);
+            const err = document.getElementById('err');
+            if (!result.ok) {
+              err.textContent = result.error;
+              return;
+            }
+            BLDAuth.registerThisDevice('Allowed phone / device');
+            root.innerHTML = `
+              <div class="auth-card">
+                <span class="badge">Matched</span>
+                <h1 class="display">Number correct</h1>
+                <p>This device is marked as allowed. If the admin screen did not unlock automatically, select the same number there — or enter this confirm code:</p>
+                <div class="verify-number">${result.confirmCode}</div>
+                <p class="step-note">Confirm codes expire with the login challenge (about 3 minutes).</p>
+                <a class="btn btn-brass" href="index.html">Back to admin</a>
+              </div>`;
+          });
+        });
+      }
+
+      render();
+      setInterval(() => {
+        if (!document.querySelector('.num-btn')) return;
+        if (!BLDAuth.getChallenge() && !parseChallengeFromUrl()) render();
+      }, 2000);
+    })();
+  </script>
+</body>
+</html>
