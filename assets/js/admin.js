@@ -1,5 +1,5 @@
 /**
- * Admin dashboard — fixed owner login + authenticator OTP, CRUD, Excel sync, media.
+ * Admin dashboard — fixed owner login (username + password), CRUD, Excel sync, media.
  */
 (function () {
   const $ = (sel, root) => (root || document).querySelector(sel);
@@ -7,7 +7,6 @@
 
   let tab = 'overview';
   let modal = null;
-  let authStep = 'login'; // login | enroll
 
   function toast(msg) {
     const el = document.createElement('div');
@@ -18,7 +17,7 @@
   }
 
   /* ========== AUTH UI ========== */
-  async function renderAuth() {
+  function renderAuth() {
     const root = $('#app');
 
     if (BLDAuth.hasSession()) {
@@ -26,50 +25,12 @@
       return;
     }
 
-    await BLDAuth.loadQrScript();
-
-    if (authStep === 'enroll') {
-      const url = BLDAuth.otpauthUrl();
-      root.innerHTML = `
-        <div class="auth-wrap">
-          <div class="auth-card" style="width:min(440px,100%)">
-            <span class="badge">Connect authenticator app</span>
-            <h1 class="display">Scan this QR</h1>
-            <p>Open Google Authenticator, Authy, or Microsoft Authenticator on your phone → Add account → Scan QR. Then enter the 6-digit code below.</p>
-            <div class="qr-box" id="qrBox"></div>
-            <p class="step-note">Manual secret (if you cannot scan):<br><code>${BLDAuth.getTotpSecret()}</code></p>
-            <div class="field"><label>Authenticator code</label>
-              <input id="enTotp" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code">
-            </div>
-            <div class="auth-error" id="authErr"></div>
-            <button class="btn btn-brass" id="btnEnrollDone">Confirm &amp; continue to login</button>
-            <button class="btn btn-ghost" id="btnEnrollBack" style="width:100%;color:rgba(244,247,245,.7);margin-top:8px">← Back</button>
-          </div>
-        </div>`;
-      BLDAuth.renderQr($('#qrBox'), url);
-      $('#btnEnrollDone').onclick = async () => {
-        const err = $('#authErr');
-        err.textContent = '';
-        const ok = await BLDAuth.verifyTotp($('#enTotp').value);
-        if (!ok) {
-          err.textContent = 'Code incorrect. Wait for a new code in the app and try again.';
-          return;
-        }
-        BLDAuth.markEnrolled();
-        toast('Authenticator connected');
-        authStep = 'login';
-        renderAuth();
-      };
-      $('#btnEnrollBack').onclick = () => { authStep = 'login'; renderAuth(); };
-      return;
-    }
-
     root.innerHTML = `
       <div class="auth-wrap">
         <div class="auth-card">
-          <span class="badge">Admin only · Authenticator required</span>
+          <span class="badge">Admin only · Public shop has no login</span>
           <h1 class="display">Owner sign-in</h1>
-          <p>Type your password and the one-time code from your authenticator app.</p>
+          <p>Enter the fixed username and password to open the control centre.</p>
           <div class="field">
             <label>Username (fixed)</label>
             <input id="liUser" value="${BLDAuth.getUsername()}" readonly tabindex="-1" class="input-locked">
@@ -78,24 +39,13 @@
             <label>Password</label>
             <input id="liPass" type="password" autocomplete="current-password" placeholder="Enter admin password">
           </div>
-          <div class="field">
-            <label>Authenticator code</label>
-            <input id="liTotp" inputmode="numeric" maxlength="6" placeholder="6-digit code" autocomplete="one-time-code">
-          </div>
           <div class="auth-error" id="authErr"></div>
           <button class="btn btn-brass" id="btnLogin">Unlock dashboard</button>
-          <p class="step-note">
-            <button type="button" id="btnShowQr" style="background:none;border:0;color:var(--brass-2);font:inherit;cursor:pointer;padding:0;text-decoration:underline">
-              Connect / reconnect authenticator app (scan QR)
-            </button><br>
-            <a href="../index.html" style="color:var(--brass-2)">← Back to public website</a>
-          </p>
+          <p class="step-note"><a href="../index.html" style="color:var(--brass-2)">← Back to public website</a></p>
         </div>
       </div>`;
     $('#btnLogin').onclick = doLogin;
-    $('#btnShowQr').onclick = () => { authStep = 'enroll'; renderAuth(); };
-    $('#liTotp').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
-    $('#liPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#liTotp')?.focus(); });
+    $('#liPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
     setTimeout(() => $('#liPass')?.focus(), 50);
   }
 
@@ -105,12 +55,8 @@
     try {
       const username = BLDAuth.getUsername();
       const password = $('#liPass').value;
-      const code = $('#liTotp').value;
       const passOk = await BLDAuth.verifyPassword(username, password);
       if (!passOk) throw new Error('Incorrect password.');
-      const totpOk = await BLDAuth.verifyTotp(code);
-      if (!totpOk) throw new Error('Incorrect authenticator code. Open your app and type the current 6-digit number.');
-      BLDAuth.markEnrolled();
       BLDAuth.registerThisDevice();
       BLDAuth.touchThisDevice();
       BLDAuth.createSession();
@@ -377,19 +323,8 @@
         <div class="card-head"><h2>Account</h2></div>
         <p style="color:var(--muted);font-size:.9rem;margin:0">
           Username is fixed as <strong>${esc(BLDAuth.getUsername())}</strong> and cannot be changed.
-          Every login requires the password plus the <strong>6-digit code from your authenticator app</strong> (Google Authenticator, Authy, or Microsoft Authenticator).
+          Sign-in uses username + password only.
         </p>
-      </div>
-      <div class="card">
-        <div class="card-head"><h2>Reconnect authenticator</h2></div>
-        <p style="color:var(--muted);font-size:.9rem">If your phone lost the account, scan this QR again (same secret). Then type a live code to confirm.</p>
-        <div class="qr-box" id="secQr" style="max-width:220px;margin:12px 0"></div>
-        <p class="help">Secret: <code>${esc(BLDAuth.getTotpSecret())}</code></p>
-        <div class="field" style="max-width:220px;margin-top:12px">
-          <label>Confirm with current code</label>
-          <input id="secTotp" class="input" inputmode="numeric" maxlength="6" placeholder="000000">
-        </div>
-        <button class="btn btn-solid btn-sm" id="btnSecConfirm" style="margin-top:8px">Confirm connection</button>
       </div>
       <div class="card">
         <div class="card-head"><h2>Browsers that signed in</h2></div>
@@ -614,16 +549,6 @@
   }
 
   function wireSecurity() {
-    BLDAuth.loadQrScript().then(() => {
-      const box = $('#secQr');
-      if (box) BLDAuth.renderQr(box, BLDAuth.otpauthUrl());
-    });
-    $('#btnSecConfirm')?.addEventListener('click', async () => {
-      const ok = await BLDAuth.verifyTotp($('#secTotp').value);
-      if (!ok) return alert('Authenticator code incorrect.');
-      BLDAuth.markEnrolled();
-      toast('Authenticator confirmed');
-    });
     $$('[data-revoke]').forEach(btn => btn.addEventListener('click', () => {
       BLDAuth.revokeDevice(btn.dataset.revoke);
       toast('Device revoked');

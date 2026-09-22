@@ -8,7 +8,7 @@
 
 Professional **neighborhood supermarket** storefront for **Boutique La Différence** (Zindiro, Kigali) — food, drinks, electronics, home equipment, tools, body products, and more.
 
-Built as a modern static web app: dark navy UI with green accents, Excel-driven inventory, shopping cart, and a full owner admin portal secured with password + authenticator app (TOTP).
+Built as a modern static web app: dark navy UI with green accents, Excel-driven inventory, shopping cart, and a full owner admin portal secured with username + password.
 
 | Surface | URL |
 |--------|-----|
@@ -28,7 +28,7 @@ Built as a modern static web app: dark navy UI with green accents, Excel-driven 
 - Social links + customer service chat widget
 
 ### Admin portal (owner only)
-- Fixed account · password · **authenticator app OTP** (QR reconnect)
+- Fixed account · **username + password** only
 - Products & prices, barcode scan, Excel / Google Sheets sync
 - Revenue charts, sales, payments, debts, orders & shipments
 - Stock & purchases, daily activity, logistics
@@ -54,9 +54,7 @@ Everything used to design, build, secure, and host this site:
 | **[SheetJS (xlsx)](https://sheetjs.com/)** | Import / parse Excel (`.xlsx`) workbooks in the browser |
 | **CSV + Google Sheets export** | Spreadsheet sync without a custom backend |
 | **[Chart.js](https://www.chartjs.org/)** | Admin revenue charts (last 7 days) |
-| **Web Crypto API** | PBKDF2-SHA256 password hashing · HMAC-SHA1 TOTP |
-| **[qrcodejs](https://github.com/davidshimjs/qrcodejs)** | Authenticator enrollment QR codes |
-| **TOTP (RFC 6238)** | One-time codes via Google Authenticator / Authy / Microsoft Authenticator |
+| **Web Crypto API** | PBKDF2-SHA256 password hashing |
 | **localStorage / sessionStorage** | Catalog, orders, session & device memory (static hosting) |
 | **Canvas 2D** | Cinematic hero atmosphere when no video URL is set |
 | **Google Fonts** | [Newsreader](https://fonts.google.com/specimen/Newsreader) + [Sora](https://fonts.google.com/specimen/Sora) |
@@ -72,7 +70,6 @@ Everything used to design, build, secure, and host this site:
 |---------|---------|
 | `xlsx` (SheetJS) | Excel import in admin |
 | `chart.js` | Dashboard charts |
-| `qrcodejs` | TOTP QR rendering |
 
 No Node/npm build step is required to run the live site — open the HTML files or use GitHub Pages.
 
