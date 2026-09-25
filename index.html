@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Boutique La Différence — Zindiro Supermarket</title>
   <meta name="description" content="Boutique La Différence — neighborhood supermarket in Zindiro, Kigali. Shop food, drinks, electronics, home goods and more. No account needed.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20260322d">
+  <link rel="stylesheet" href="assets/css/site.css?v=20260325m">
   <style id="chatCritical">
     /* Critical chat open/close — works even if site.css is cached */
     #helpScrim {
@@ -70,13 +70,30 @@
       background: #c9a227; color: #07140f; font-weight: 700;
     }
     #helpFab {
-      position: fixed; right: 18px; bottom: 18px; z-index: 70;
+      position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); z-index: 70;
       border: 0; cursor: pointer;
-      padding: 14px 20px; border-radius: 999px;
+      padding: 12px 16px; border-radius: 999px;
       background: #3d9a68; color: #fff; font-weight: 700;
       box-shadow: 0 16px 40px -18px rgba(0,0,0,.7);
+      font-size: .88rem;
     }
     body.help-open { overflow: hidden; }
+    @media (max-width: 640px) {
+      #helpSheet {
+        width: 100%;
+        max-height: min(78vh, 560px);
+        border-radius: 18px 18px 0 0;
+      }
+      #helpFab {
+        padding: 11px 14px;
+        font-size: .8rem;
+      }
+      #helpFoot {
+        flex-wrap: wrap;
+      }
+      #helpInput { min-width: 0; width: 100%; flex: 1 1 auto; }
+      #helpSend { flex: 0 0 auto; }
+    }
   </style>
 </head>
 <body>
@@ -100,7 +117,7 @@
       </nav>
       <div class="nav-meta">
         <button type="button" class="cart-btn" id="cartBtn" aria-label="Open cart">
-          Cart <span class="cart-count" id="cartCount">0</span>
+          <span class="cart-label">Cart</span> <span class="cart-count" id="cartCount">0</span>
         </button>
       </div>
     </div>
@@ -446,7 +463,7 @@
       window.BLDHelpChat = { open: openHelp, isOpen: function () { return sheet.classList.contains('is-on'); } };
     })();
   </script>
-  <script src="assets/js/data.js?v=20260322d"></script>
-  <script src="assets/js/store.js?v=20260322d"></script>
+  <script src="assets/js/data.js?v=20260325m"></script>
+  <script src="assets/js/store.js?v=20260325m"></script>
 </body>
 </html>
