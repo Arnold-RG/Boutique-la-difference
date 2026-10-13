@@ -1,5 +1,6 @@
 /**
- * Admin dashboard — fixed owner login (username + password), CRUD, Excel sync, media.
+ * Admin dashboard. The server has already checked the session
+ * before this page is sent. Sign-out goes back through that server.
  */
 (function () {
   const $ = (sel, root) => (root || document).querySelector(sel);
@@ -7,6 +8,7 @@
 
   let tab = 'overview';
   let modal = null;
+  let sessionUser = 'Owner';
 
   function toast(msg) {
     const el = document.createElement('div');
@@ -16,54 +18,21 @@
     setTimeout(() => el.remove(), 2800);
   }
 
-  /* ========== AUTH UI ========== */
-  function renderAuth() {
-    const root = $('#app');
-
-    if (BLDAuth.hasSession()) {
-      renderDashboard();
-      return;
-    }
-
-    root.innerHTML = `
-      <div class="auth-wrap">
-        <div class="auth-card">
-          <span class="badge">Admin only · Public shop has no login</span>
-          <h1 class="display">Owner sign-in</h1>
-          <p>Enter the fixed username and password to open the control centre.</p>
-          <div class="field">
-            <label>Username (fixed)</label>
-            <input id="liUser" value="${BLDAuth.getUsername()}" readonly tabindex="-1" class="input-locked">
-          </div>
-          <div class="field">
-            <label>Password</label>
-            <input id="liPass" type="password" autocomplete="current-password" placeholder="Enter admin password">
-          </div>
-          <div class="auth-error" id="authErr"></div>
-          <button class="btn btn-brass" id="btnLogin">Unlock dashboard</button>
-          <p class="step-note"><a href="../index.html" style="color:var(--brass-2)">← Back to public website</a></p>
-        </div>
-      </div>`;
-    $('#btnLogin').onclick = doLogin;
-    $('#liPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
-    setTimeout(() => $('#liPass')?.focus(), 50);
-  }
-
-  async function doLogin() {
-    const err = $('#authErr');
-    err.textContent = '';
+  async function boot() {
     try {
-      const username = BLDAuth.getUsername();
-      const password = $('#liPass').value;
-      const passOk = await BLDAuth.verifyPassword(username, password);
-      if (!passOk) throw new Error('Incorrect password.');
+      const res = await fetch('/api/session', {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' }
+      });
+      if (!res.ok) throw new Error('signed out');
+      const body = await res.json();
+      if (!body || !body.ok) throw new Error('signed out');
+      sessionUser = body.username || 'Owner';
       BLDAuth.registerThisDevice();
       BLDAuth.touchThisDevice();
-      BLDAuth.createSession();
-      toast('Welcome back');
       renderDashboard();
-    } catch (e) {
-      err.textContent = e.message || String(e);
+    } catch (err) {
+      window.location.replace('login');
     }
   }
 
@@ -75,10 +44,11 @@
     const root = $('#app');
     root.innerHTML = `
       <div class="admin-shell">
+        <div class="sidebar-scrim" id="sideScrim" hidden></div>
         <aside class="sidebar" id="sidebar">
           <div class="side-brand">
-            <div class="mark">L</div>
-            <div><strong>La Différence</strong><span>Admin control</span></div>
+            <div class="mark">Ld</div>
+            <div><strong>La Différence</strong><span>Private office</span></div>
           </div>
           <nav class="side-nav">
             ${NAV.map(sec => `
@@ -96,13 +66,13 @@
         <div class="main">
           <div class="topbar">
             <div style="display:flex;align-items:center;gap:10px;">
-              <button class="btn btn-outline btn-sm burger" id="burger">Menu</button>
+              <button class="btn btn-outline btn-sm burger" id="burger" type="button" aria-expanded="false" aria-controls="sidebar">Menu</button>
               <div>
                 <div class="muted">${new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
                 <h1 class="display">${titleFor(tab)}</h1>
               </div>
             </div>
-            <div style="font-size:.85rem;color:var(--muted)">Signed in · ${esc(BLDAuth.getUsername())}</div>
+            <div style="font-size:.85rem;color:var(--muted)">Signed in · ${esc(sessionUser)}</div>
           </div>
           <div class="content" id="tabContent">${tabHtml(data)}</div>
         </div>
@@ -115,8 +85,22 @@
       modal = null;
       renderDashboard();
     }));
-    $('#btnLogout').onclick = () => { BLDAuth.clearSession(); renderAuth(); };
-    $('#burger')?.addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+    $('#btnLogout').onclick = async () => {
+      try {
+        await fetch('/api/logout', { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json' } });
+      } catch (err) { /* the cookie clear is what matters */ }
+      window.location.href = 'login';
+    };
+    const burger = $('#burger');
+    const sidebar = $('#sidebar');
+    const scrim = $('#sideScrim');
+    function setSide(open) {
+      sidebar?.classList.toggle('open', open);
+      if (scrim) scrim.hidden = !open;
+      burger?.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    burger?.addEventListener('click', () => setSide(!sidebar?.classList.contains('open')));
+    scrim?.addEventListener('click', () => setSide(false));
     wireTab(data);
   }
 
@@ -314,22 +298,23 @@
         <td><strong>${esc(d.label)}</strong>
           <div style="color:var(--muted);font-size:.75rem">${d.id === thisId ? 'This device · ' : ''}${esc(d.lastSeen || '')}</div>
         </td>
-        <td>${d.allowed ? '<span class="pill pill-ok">Allowed</span>' : '<span class="pill pill-muted">Off</span>'}</td>
+        <td><span class="pill pill-muted">Noted</span></td>
         <td class="row-actions">
-          ${d.id === thisId ? '' : `<button class="btn btn-danger btn-sm" data-revoke="${d.id}">Revoke</button>`}
+          ${d.id === thisId ? '' : `<button class="btn btn-danger btn-sm" data-revoke="${d.id}">Remove</button>`}
         </td>
-      </tr>`).join('') : `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:20px">No devices registered yet — they appear after a successful login.</td></tr>`;
+      </tr>`).join('') : `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:20px">None yet. This browser is noted after you open the office.</td></tr>`;
 
     return `
       <div class="card">
         <div class="card-head"><h2>Account</h2></div>
         <p style="color:var(--muted);font-size:.9rem;margin:0">
-          Username is fixed as <strong>${esc(BLDAuth.getUsername())}</strong> and cannot be changed.
-          Sign-in uses username + password only.
+          Signed in as <strong>${esc(sessionUser)}</strong>. The shop server checks the password and keeps the session in an HttpOnly cookie for eight hours.
+          Five wrong attempts from the same network pause sign-in for fifteen minutes. Use Sign out on a shared computer.
         </p>
       </div>
       <div class="card">
-        <div class="card-head"><h2>Browsers that signed in</h2></div>
+        <div class="card-head"><h2>Browsers on this computer</h2></div>
+        <p class="help">This note lives only in this browser. Removing a row does not end a server session. Sign out does.</p>
         <div class="table-wrap"><table>
           <thead><tr><th>Device</th><th>Status</th><th></th></tr></thead>
           <tbody>${rows}</tbody>
@@ -565,7 +550,7 @@
   function wireSecurity() {
     $$('[data-revoke]').forEach(btn => btn.addEventListener('click', () => {
       BLDAuth.revokeDevice(btn.dataset.revoke);
-      toast('Device revoked');
+      toast('Removed from this browser’s list');
       renderDashboard();
     }));
   }
@@ -663,5 +648,20 @@
   }
   function escAttr(s) { return esc(s).replace(/'/g, '&#39;'); }
 
-  document.addEventListener('DOMContentLoaded', renderAuth);
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      const scrim = document.getElementById('sideScrim');
+      if (scrim) scrim.hidden = true;
+      const burger = document.getElementById('burger');
+      if (burger) burger.setAttribute('aria-expanded', 'false');
+      return;
+    }
+    const cancel = document.getElementById('modalCancel');
+    if (cancel) cancel.click();
+  });
+
+  document.addEventListener('DOMContentLoaded', boot);
 })();

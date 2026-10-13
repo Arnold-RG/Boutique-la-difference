@@ -3,140 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Boutique La Différence — Zindiro Supermarket</title>
-  <meta name="description" content="Boutique La Différence — neighborhood supermarket in Zindiro, Kigali. Shop food, drinks, electronics, home goods and more. No account needed.">
+  <title>Boutique La Différence — Zindiro, Kigali</title>
+  <meta name="description" content="Boutique La Différence is a neighborhood supermarket on KG 11 Ave in Zindiro, Kigali. Food, drinks, electronics, home goods, tools, and body products. No account needed.">
+  <meta name="theme-color" content="#f4f0e8">
+  <link rel="canonical" href="https://arnold-rg.github.io/Boutique-la-difference/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Boutique La Différence">
+  <meta property="og:title" content="Boutique La Différence — Zindiro, Kigali">
+  <meta property="og:description" content="A neighborhood supermarket on KG 11 Ave. Food, drinks, and the household things a week runs on.">
+  <meta property="og:url" content="https://arnold-rg.github.io/Boutique-la-difference/">
+  <meta property="og:image" content="https://arnold-rg.github.io/Boutique-la-difference/assets/og.png">
+  <meta property="og:locale" content="en_RW">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Boutique La Différence — Zindiro, Kigali">
+  <meta name="twitter:description" content="A neighborhood supermarket on KG 11 Ave. Food, drinks, and the household things a week runs on.">
+  <meta name="twitter:image" content="https://arnold-rg.github.io/Boutique-la-difference/assets/og.png">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20260325m">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261013">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "GroceryStore",
+    "name": "Boutique La Différence",
+    "url": "https://arnold-rg.github.io/Boutique-la-difference/",
+    "image": "https://arnold-rg.github.io/Boutique-la-difference/assets/og.png",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "KG 11 Ave",
+      "addressLocality": "Zindiro",
+      "addressRegion": "Kigali",
+      "addressCountry": "RW"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "07:00",
+        "closes": "23:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Saturday", "Sunday"],
+        "opens": "09:00",
+        "closes": "23:00"
+      }
+    ]
+  }
+  </script>
   <style id="chatCritical">
-    /* Critical chat open/close — works even if site.css is cached */
-    #helpScrim {
-      position: fixed; inset: 0; z-index: 80;
-      background: rgba(4, 10, 22, .62);
-      opacity: 0; visibility: hidden; pointer-events: none;
-      transition: opacity .2s ease, visibility .2s ease;
-    }
+    #helpScrim { position: fixed; inset: 0; z-index: 80; background: rgba(12, 16, 14, .46); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .35s ease, visibility .35s ease; }
     #helpScrim.is-on { opacity: 1; visibility: visible; pointer-events: auto; }
-    #helpSheet {
-      position: fixed; left: 50%; bottom: 0; z-index: 81;
-      width: min(420px, 100%);
-      max-height: min(72vh, 560px);
-      transform: translate(-50%, 110%);
-      transition: transform .28s cubic-bezier(.2,.8,.2,1);
-      background: #0e1a2e;
-      border: 1px solid rgba(140,180,220,.16);
-      border-bottom: 0;
-      border-radius: 22px 22px 0 0;
-      box-shadow: 0 -24px 60px -20px rgba(0,0,0,.65);
-      display: flex; flex-direction: column;
-      color: #e8eef8;
-      overflow: hidden;
-    }
+    #helpSheet { position: fixed; left: 50%; bottom: 0; z-index: 81; width: min(440px, 100%); max-height: min(72vh, 560px); transform: translate(-50%, 110%); transition: transform .45s cubic-bezier(.16, 1, .3, 1); background: #141c19; color: #f4f0e8; border: 1px solid rgba(196, 165, 116, .35); border-bottom: 0; display: flex; flex-direction: column; overflow: hidden; }
     #helpSheet.is-on { transform: translate(-50%, 0); }
-    #helpSheet .help-head {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 14px 16px; background: #060d18; flex-shrink: 0;
-    }
-    #helpSheet .help-head strong { font-size: 1rem; }
-    #helpCloseBtn {
-      border: 0; cursor: pointer;
-      background: #3d9a68; color: #fff;
-      font-weight: 700; font-size: .85rem;
-      padding: 10px 14px; border-radius: 999px;
-    }
-    #helpCloseBtn:hover { filter: brightness(1.08); }
-    #helpBody {
-      flex: 1; overflow: auto; padding: 14px; min-height: 180px;
-      display: flex; flex-direction: column; gap: 8px; background: #0a1424;
-    }
-    #helpBody .chat-bubble {
-      max-width: 90%; padding: 8px 10px; border-radius: 12px; font-size: .85rem;
-    }
-    #helpBody .chat-bubble .meta { font-size: .68rem; color: #8ba0b8; margin-bottom: 2px; }
-    #helpBody .chat-bubble.customer { background: #152438; border: 1px solid rgba(140,180,220,.14); align-self: flex-end; }
-    #helpBody .chat-bubble.admin { background: #1a4a35; color: #fff; align-self: flex-start; }
-    #helpBody .chat-bubble.admin .meta { color: rgba(255,255,255,.65); }
-    #helpFoot {
-      display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(140,180,220,.14);
-      background: #0e1a2e; flex-shrink: 0;
-    }
-    #helpInput {
-      flex: 1; border: 1px solid rgba(140,180,220,.14); border-radius: 12px;
-      padding: 11px 12px; background: #152438; color: #e8eef8;
-    }
-    #helpSend {
-      border: 0; cursor: pointer; padding: 11px 16px; border-radius: 12px;
-      background: #c9a227; color: #07140f; font-weight: 700;
-    }
-    #helpFab {
-      position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); z-index: 70;
-      border: 0; cursor: pointer;
-      padding: 12px 16px; border-radius: 999px;
-      background: #3d9a68; color: #fff; font-weight: 700;
-      box-shadow: 0 16px 40px -18px rgba(0,0,0,.7);
-      font-size: .88rem;
-    }
+    #helpSheet .help-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; flex-shrink: 0; border-bottom: 1px solid rgba(244, 240, 232, .08); }
+    #helpCloseBtn, #helpSend { border: 0; cursor: pointer; font: inherit; }
+    #helpCloseBtn { background: transparent; color: #f4f0e8; letter-spacing: .14em; text-transform: uppercase; font-size: .68rem; padding: 8px 0; }
+    #helpBody { flex: 1; overflow: auto; padding: 18px 20px; min-height: 180px; display: flex; flex-direction: column; gap: 10px; }
+    #helpBody .chat-bubble { max-width: 88%; padding: 10px 12px; font-size: .92rem; line-height: 1.45; }
+    #helpBody .chat-bubble .meta { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(244, 240, 232, .55); margin-bottom: 4px; }
+    #helpBody .chat-bubble.customer { background: rgba(244, 240, 232, .06); align-self: flex-end; }
+    #helpBody .chat-bubble.admin { background: rgba(196, 165, 116, .12); align-self: flex-start; }
+    #helpFoot { display: flex; gap: 10px; padding: 14px 16px 16px; border-top: 1px solid rgba(244, 240, 232, .08); }
+    #helpInput { flex: 1; border: 0; border-bottom: 1px solid rgba(244, 240, 232, .28); background: transparent; color: #f4f0e8; padding: 10px 0; font: inherit; }
+    #helpSend { background: #f4f0e8; color: #141c19; padding: 12px 16px; letter-spacing: .14em; text-transform: uppercase; font-size: .68rem; font-weight: 500; }
+    #helpFab { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); z-index: 45; border: 1px solid rgba(26, 25, 22, .2); background: #f7f4ee; color: #1a1916; letter-spacing: .16em; text-transform: uppercase; font-size: .68rem; font-weight: 500; padding: 14px 16px; cursor: pointer; font-family: Outfit, system-ui, sans-serif; }
     body.help-open { overflow: hidden; }
     @media (max-width: 640px) {
-      #helpSheet {
-        width: 100%;
-        max-height: min(78vh, 560px);
-        border-radius: 18px 18px 0 0;
-      }
-      #helpFab {
-        padding: 11px 14px;
-        font-size: .8rem;
-      }
-      #helpFoot {
-        flex-wrap: wrap;
-      }
-      #helpInput { min-width: 0; width: 100%; flex: 1 1 auto; }
-      #helpSend { flex: 0 0 auto; }
+      #helpSheet { width: 100%; }
+      #helpFoot { flex-wrap: wrap; }
+      #helpInput { min-width: 0; width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #helpScrim, #helpSheet { transition: none; }
     }
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#top">Skip to content</a>
   <header class="site-nav" id="siteNav">
     <div class="nav-inner">
       <a class="brand" href="#top">
-        <span class="brand-mark">L</span>
-        <span>
+        <span class="brand-mark" aria-hidden="true">Ld</span>
+        <span class="brand-text">
           <span class="brand-name" data-shop-name>Boutique La Différence</span>
-          <span class="brand-sub">Zindiro · Kigali</span>
+          <span class="brand-sub">Zindiro, Kigali</span>
         </span>
       </a>
-      <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
-      <nav class="nav-links" id="navLinks">
-        <a href="#categories">Shop</a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
+        <span class="menu-bars" aria-hidden="true"></span>
+      </button>
+      <nav class="nav-links" id="navLinks" aria-label="Shop">
+        <a href="#categories">Departments</a>
+        <a href="#catalog">List</a>
         <a href="#about">About</a>
-        <a href="#team">Team</a>
+        <a href="#team">People</a>
         <a href="#feedback">Feedback</a>
-        <a href="#ads">Partners</a>
         <a href="#visit">Visit</a>
       </nav>
       <div class="nav-meta">
-        <button type="button" class="cart-btn" id="cartBtn" aria-label="Open cart">
-          <span class="cart-label">Cart</span> <span class="cart-count" id="cartCount">0</span>
+        <button type="button" class="cart-btn" id="cartBtn" aria-label="Open cart, 0 items">
+          <span class="cart-label">Cart</span>
+          <span class="cart-count" id="cartCount">0</span>
         </button>
       </div>
     </div>
   </header>
 
-  <main id="top">
-    <section class="hero">
-      <div class="hero-media">
-        <video id="heroVideo" autoplay muted loop playsinline hidden></video>
-        <canvas id="heroCanvas" aria-hidden="true"></canvas>
-      </div>
-      <div class="hero-veil"></div>
-      <div class="hero-content">
-        <div class="hero-kicker">Neighborhood supermarket</div>
-        <h1 data-shop-name>Boutique La Différence</h1>
-        <p data-tagline>Your everyday store for food, drinks, electronics, home equipment, tools, body products, and more — stocked from our live inventory.</p>
-        <div class="hero-actions">
-          <a class="btn btn-brass" href="#catalog">Shop the catalog</a>
-          <a class="btn btn-ghost" href="#about">About us</a>
+  <main id="top" tabindex="-1">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="hero-kicker">Neighborhood supermarket</p>
+          <h1 id="heroTitle" data-shop-name>Boutique La Différence</h1>
+          <p class="hero-lead" data-tagline>Food, drinks, and the household things a week runs on. KG 11 Ave, Zindiro.</p>
+          <div class="hero-actions">
+            <a class="btn btn-solid" href="#catalog">Browse the list</a>
+            <a class="btn btn-ghost" href="#visit">Plan a visit</a>
+          </div>
+          <dl class="hero-facts">
+            <div>
+              <dt>Address</dt>
+              <dd data-address>KG 11 Ave, Zindiro, Kigali</dd>
+            </div>
+            <div>
+              <dt>Account</dt>
+              <dd>None. Shop as a guest.</dd>
+            </div>
+          </dl>
+        </div>
+        <div class="hero-stage">
+          <div class="hero-media">
+            <video id="heroVideo" autoplay muted loop playsinline hidden></video>
+            <canvas id="heroCanvas" aria-hidden="true"></canvas>
+            <div class="hero-veil" aria-hidden="true"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -145,8 +149,8 @@
       <div class="container">
         <div class="section-head">
           <div class="eyebrow">Departments</div>
-          <h2>Everything for the household</h2>
-          <p>Browse by category. Add items to your cart — no login required.</p>
+          <h2>The house, <em>shelf by shelf</em></h2>
+          <p>Seven departments. Choose one and the list below follows.</p>
         </div>
         <div class="cat-grid" id="catGrid"></div>
       </div>
@@ -155,18 +159,20 @@
     <section class="section alt" id="catalog">
       <div class="container">
         <div class="section-head">
-          <div class="eyebrow">Live catalog</div>
-          <h2>Current stock</h2>
-          <p>Prices and stock sync from the shop’s Excel / admin dashboard.</p>
+          <div class="eyebrow">The list</div>
+          <h2>What is <em>on the shelf</em></h2>
+          <p>Names and prices come from the shop’s own list. Search if you already know what you want.</p>
         </div>
         <div class="toolbar">
           <label class="search">
-            <span aria-hidden="true">⌕</span>
-            <input id="catalogSearch" type="search" placeholder="Search products…" autocomplete="off">
+            <span class="sr-only">Search products</span>
+            <input id="catalogSearch" type="search" placeholder="Search the list" autocomplete="off" enterkeyhint="search">
           </label>
-          <div class="filters" id="filterChips"></div>
+          <p class="catalog-count" id="catalogCount" aria-live="polite"></p>
+          <div class="filters" id="filterChips" role="toolbar" aria-label="Filter by department"></div>
         </div>
         <div class="product-grid" id="productGrid"></div>
+        <noscript><p class="empty-state">The list needs JavaScript so this browser can read the shop’s prices.</p></noscript>
       </div>
     </section>
 
@@ -175,9 +181,9 @@
         <div class="promo-band" id="promoBand" hidden>
           <div class="promo-grid">
             <div>
-              <div class="eyebrow" style="color:var(--brass-2)">From the shop floor</div>
-              <h2 style="margin:0 0 10px;font-size:clamp(1.6rem,3vw,2.2rem)">Events &amp; discounts</h2>
-              <p style="margin:0;color:rgba(244,247,245,.7);max-width:36ch">Published by the owner from the admin dashboard.</p>
+              <div class="eyebrow eyebrow-light">From the floor</div>
+              <h2>Notices</h2>
+              <p>Discounts and events the shop is running now.</p>
             </div>
             <div class="promo-list" id="promoList"></div>
           </div>
@@ -188,15 +194,15 @@
     <section class="section" id="about">
       <div class="container about-grid">
         <div>
-          <div class="eyebrow">About us</div>
-          <h2>Our story</h2>
+          <div class="eyebrow">About</div>
+          <h2>A neighborhood shop</h2>
           <p id="aboutStory" class="about-copy"></p>
           <p id="aboutMission" class="about-mission"></p>
         </div>
-        <div class="panel">
-          <h3 style="margin-top:0">Follow us</h3>
+        <aside class="panel" id="socialPanel">
+          <h3>Elsewhere</h3>
           <div class="social-links" id="socialLinks"></div>
-        </div>
+        </aside>
       </div>
     </section>
 
@@ -204,70 +210,51 @@
       <div class="container">
         <div class="section-head">
           <div class="eyebrow">People</div>
-          <h2>Our team</h2>
-          <p>The faces behind Boutique La Différence.</p>
+          <h2>At the counter</h2>
+          <p>The people who keep the shop.</p>
         </div>
         <div class="team-grid" id="teamGrid"></div>
       </div>
     </section>
 
-    <section class="section feedback-section" id="feedback">
+    <section class="section" id="feedback">
       <div class="container">
         <div class="section-head feedback-intro">
-          <div class="eyebrow">Your voice</div>
-          <h2>Rate our service &amp; products</h2>
-          <p>Tap a rating, pick how it felt, and leave a short note — it helps us serve Zindiro better.</p>
+          <div class="eyebrow">Feedback</div>
+          <h2>How did we do</h2>
+          <p>A rating and a few words. We read them.</p>
         </div>
-
         <div class="feedback-layout">
           <form class="feedback-form" id="feedbackForm" novalidate>
             <div class="fb-form-head">
-              <h3>Leave a review</h3>
-              <p>Takes less than a minute. Name is optional.</p>
+              <h3>Leave a note</h3>
+              <p>Your name can stay blank.</p>
             </div>
-
             <div class="fb-rating-block">
               <div class="fb-rating-label">
                 <span>Your rating</span>
                 <strong id="fbRatingLabel">Excellent</strong>
               </div>
               <div class="star-pick" id="starPick" role="radiogroup" aria-label="Star rating">
-                <button type="button" data-star="1" aria-label="1 star"><span aria-hidden="true">★</span></button>
-                <button type="button" data-star="2" aria-label="2 stars"><span aria-hidden="true">★</span></button>
-                <button type="button" data-star="3" aria-label="3 stars"><span aria-hidden="true">★</span></button>
-                <button type="button" data-star="4" aria-label="4 stars"><span aria-hidden="true">★</span></button>
-                <button type="button" data-star="5" aria-label="5 stars"><span aria-hidden="true">★</span></button>
+                <button type="button" role="radio" data-star="1" aria-checked="false" aria-label="1 star">★</button>
+                <button type="button" role="radio" data-star="2" aria-checked="false" aria-label="2 stars">★</button>
+                <button type="button" role="radio" data-star="3" aria-checked="false" aria-label="3 stars">★</button>
+                <button type="button" role="radio" data-star="4" aria-checked="false" aria-label="4 stars">★</button>
+                <button type="button" role="radio" data-star="5" aria-checked="true" aria-label="5 stars">★</button>
               </div>
               <input type="hidden" id="fbRating" value="5">
             </div>
-
-            <div class="field">
-              <label>How did it feel?</label>
+            <fieldset class="field">
+              <legend>How did it feel?</legend>
               <div class="reaction-pick" id="reactionPick">
-                <button type="button" class="reaction-btn active" data-reaction="Loved it" title="Smiling face with heart-shaped eyes">
-                  <span class="rx-emoji" aria-hidden="true">&#128525;</span>
-                  <span>Loved it</span>
-                </button>
-                <button type="button" class="reaction-btn" data-reaction="Happy" title="Grinning face with smiling eyes">
-                  <span class="rx-emoji" aria-hidden="true">&#128513;</span>
-                  <span>Happy</span>
-                </button>
-                <button type="button" class="reaction-btn" data-reaction="Okay" title="Neutral face">
-                  <span class="rx-emoji" aria-hidden="true">&#128528;</span>
-                  <span>Okay</span>
-                </button>
-                <button type="button" class="reaction-btn" data-reaction="Needs work" title="Disappointed face">
-                  <span class="rx-emoji" aria-hidden="true">&#128542;</span>
-                  <span>Needs work</span>
-                </button>
-                <button type="button" class="reaction-btn" data-reaction="Disappointed" title="Pouting face">
-                  <span class="rx-emoji" aria-hidden="true">&#128545;</span>
-                  <span>Disappointed</span>
-                </button>
+                <button type="button" class="reaction-btn active" data-reaction="Loved it" aria-pressed="true">Loved it</button>
+                <button type="button" class="reaction-btn" data-reaction="Happy" aria-pressed="false">Happy</button>
+                <button type="button" class="reaction-btn" data-reaction="Okay" aria-pressed="false">Okay</button>
+                <button type="button" class="reaction-btn" data-reaction="Needs work" aria-pressed="false">Needs work</button>
+                <button type="button" class="reaction-btn" data-reaction="Disappointed" aria-pressed="false">Disappointed</button>
               </div>
               <input type="hidden" id="fbReaction" value="Loved it">
-            </div>
-
+            </fieldset>
             <div class="fb-grid-2">
               <div class="field">
                 <label for="fbName">Your name</label>
@@ -280,32 +267,29 @@
                 </select>
               </div>
             </div>
-
             <div class="field">
               <label for="fbComment">Your comment</label>
-              <textarea id="fbComment" class="fb-control" rows="4" placeholder="What stood out — products, staff, prices, cleanliness…" maxlength="500"></textarea>
-              <div class="fb-char"><span id="fbCharCount">0</span>/500</div>
+              <textarea id="fbComment" class="fb-control" rows="4" placeholder="The queue, the prices, something you could not find…" maxlength="500"></textarea>
+              <div class="fb-char"><span id="fbCharCount">0</span> / 500</div>
             </div>
-
             <div class="fb-actions">
               <button type="submit" class="btn btn-solid fb-submit">Send feedback</button>
-              <p class="feedback-note" id="fbThanks" hidden>Thank you — your feedback was saved.</p>
+              <p class="feedback-note" id="fbThanks" role="status" hidden>Thank you. Your note was saved on this browser.</p>
             </div>
           </form>
-
           <aside class="feedback-side">
             <div class="fb-summary" id="fbSummary">
               <div class="fb-score">
                 <div class="fb-score-num" id="fbAvgScore">—</div>
                 <div class="fb-score-meta">
-                  <div class="fb-score-stars" id="fbAvgStars"></div>
-                  <div class="fb-score-count" id="fbReviewCount">No reviews yet</div>
+                  <div class="fb-score-stars" id="fbAvgStars" aria-hidden="true"></div>
+                  <div class="fb-score-count" id="fbReviewCount">No notes yet</div>
                 </div>
               </div>
             </div>
             <div class="fb-side-head">
               <div class="eyebrow">Recent</div>
-              <h3>What customers say</h3>
+              <h3>What people wrote</h3>
             </div>
             <div class="review-list" id="reviewList"></div>
           </aside>
@@ -313,12 +297,12 @@
       </div>
     </section>
 
-    <section class="section" id="ads">
+    <section class="section alt" id="ads">
       <div class="container">
         <div class="section-head">
-          <div class="eyebrow">Community</div>
-          <h2>Businesses we advertise</h2>
-          <p>Supporting other businesses across Rwanda — managed from our admin portal.</p>
+          <div class="eyebrow">Neighbors</div>
+          <h2>On our board</h2>
+          <p>Other businesses the shop chooses to mention.</p>
         </div>
         <div class="ads-grid" id="adsGrid"></div>
       </div>
@@ -327,34 +311,36 @@
     <section class="section" id="gallery">
       <div class="container">
         <div class="section-head">
-          <div class="eyebrow">The shop</div>
-          <h2>Inside Boutique La Différence</h2>
-          <p>Business photos added by the admin.</p>
+          <div class="eyebrow">The room</div>
+          <h2>Inside the shop</h2>
+          <p>Photographs from the floor.</p>
         </div>
         <div class="gallery" id="galleryGrid"></div>
       </div>
     </section>
 
-    <section class="section" id="visit">
+    <section class="section alt" id="visit">
       <div class="container">
         <div class="section-head">
-          <div class="eyebrow">Visit us</div>
-          <h2>Open for your daily shop</h2>
-          <p>Come through Zindiro — or order via cart and WhatsApp.</p>
+          <div class="eyebrow">Visit</div>
+          <h2>The door is on <em>KG 11 Ave</em></h2>
+          <p>Come in, or send a cart on WhatsApp when the shop has published a number.</p>
         </div>
         <div class="visit-grid">
           <div class="panel">
-            <h3 style="margin-top:0">Hours &amp; contact</h3>
-            <table class="hours" id="hoursTable"></table>
-            <p style="margin:18px 0 6px;color:var(--muted);font-size:.85rem">Address</p>
-            <p style="margin:0 0 16px;font-weight:600" data-address></p>
-            <div style="display:flex;flex-wrap:wrap;gap:10px">
-              <a class="btn btn-solid" id="shopPhone" href="#">Call</a>
-              <a class="btn btn-outline" id="shopWhatsapp" href="#" hidden target="_blank" rel="noopener">WhatsApp</a>
+            <h3>Hours and contact</h3>
+            <table class="hours" id="hoursTable">
+              <caption class="sr-only">Opening hours</caption>
+            </table>
+            <p class="addr-label">Address</p>
+            <p class="addr" data-address></p>
+            <div class="visit-actions">
+              <a class="btn btn-solid" id="shopPhone" href="#" hidden>Call the shop</a>
+              <a class="btn btn-ghost" id="shopWhatsapp" href="#" hidden target="_blank" rel="noopener">WhatsApp</a>
             </div>
           </div>
           <div class="map-frame">
-            <iframe id="mapFrame" title="Shop map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+            <iframe id="mapFrame" title="Map of Boutique La Différence in Zindiro, Kigali" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=Zindiro+Kigali&output=embed"></iframe>
           </div>
         </div>
       </div>
@@ -366,58 +352,66 @@
       <div>
         <h3 data-shop-name>Boutique La Différence</h3>
         <p data-tagline></p>
-        <div class="social-links" id="footerSocial" style="margin-top:14px"></div>
+        <div class="social-links" id="footerSocial"></div>
       </div>
       <div>
-        <h3>Explore</h3>
-        <p><a href="#catalog">Catalog</a></p>
+        <h3>Find</h3>
+        <p><a href="#catalog">The list</a></p>
         <p><a href="#about">About</a></p>
-        <p><a href="#team">Team</a></p>
         <p><a href="#feedback">Feedback</a></p>
-        <p><a href="#ads">Partners</a></p>
+        <p><a href="#visit">Visit</a></p>
       </div>
       <div>
-        <h3>Note</h3>
-        <p>No customer login or registration. Shop freely, add to cart, and checkout via WhatsApp or at the store.</p>
+        <h3>How to buy</h3>
+        <p>No account. Add what you need and send the list, or pay at the counter.</p>
       </div>
     </div>
     <div class="container footer-bottom">
       <span>© <span id="year"></span> Boutique La Différence · Arnold Rurangwa · ARNOVA Group</span>
-      <a class="admin-link" href="admin/">Admin</a>
     </div>
   </footer>
 
-  <div class="scrim" id="cartScrim"></div>
-  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
+  <div class="scrim" id="cartScrim" hidden></div>
+  <aside class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle" aria-hidden="true">
     <div class="cart-head">
-      <h2 class="display">Your cart</h2>
+      <h2 class="display" id="cartTitle">Your cart</h2>
       <button type="button" class="btn btn-ghost" id="cartClose">Close</button>
     </div>
     <div class="cart-body" id="cartBody"></div>
-    <div class="cart-foot">
-      <div class="cart-total">Total: <strong id="cartTotal">RWF 0</strong></div>
-      <div class="field"><label>Full name</label><input id="coName" class="input" placeholder="Your name"></div>
-      <div class="field"><label>Phone</label><input id="coPhone" class="input" placeholder="+250…"></div>
-      <div class="field"><label>Delivery address</label><input id="coAddr" class="input" placeholder="Neighborhood / street"></div>
-      <button type="button" class="btn btn-brass" id="btnCheckout" style="width:100%">Checkout via WhatsApp</button>
-    </div>
+    <form class="cart-foot" id="checkoutForm">
+      <div class="cart-total">Total <strong id="cartTotal">RWF 0</strong></div>
+      <div class="field">
+        <label for="coName">Full name</label>
+        <input id="coName" class="input" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="coPhone">Phone</label>
+        <input id="coPhone" class="input" type="tel" autocomplete="tel" inputmode="tel" required>
+      </div>
+      <div class="field">
+        <label for="coAddr">Delivery address</label>
+        <input id="coAddr" class="input" autocomplete="street-address" placeholder="Neighborhood or street">
+      </div>
+      <button type="submit" class="btn btn-solid" id="btnCheckout">Send the list</button>
+    </form>
   </aside>
 
-  <button type="button" id="helpFab" aria-expanded="false" aria-controls="helpSheet">Need help?</button>
+  <button type="button" id="helpFab" aria-expanded="false" aria-controls="helpSheet">Message the shop</button>
   <div id="helpScrim"></div>
-  <div id="helpSheet" role="dialog" aria-label="Customer service" aria-hidden="true">
+  <div id="helpSheet" role="dialog" aria-label="Message the shop" aria-modal="true" aria-hidden="true">
     <div class="help-head">
       <div>
-        <strong>Customer service</strong>
-        <div style="font-size:.75rem;color:#8ba0b8;margin-top:2px">Boutique La Différence</div>
+        <strong>The shop</strong>
+        <div class="help-sub">Boutique La Différence</div>
       </div>
       <button type="button" id="helpCloseBtn">Close</button>
     </div>
     <div id="helpBody"></div>
-    <div id="helpFoot">
-      <input id="helpInput" type="text" placeholder="Type a message…" autocomplete="off">
-      <button type="button" id="helpSend">Send</button>
-    </div>
+    <form id="helpFoot">
+      <label class="sr-only" for="helpInput">Message</label>
+      <input id="helpInput" type="text" placeholder="Write a message" autocomplete="off" maxlength="500">
+      <button type="submit" id="helpSend">Send</button>
+    </form>
   </div>
 
   <script>
@@ -436,7 +430,7 @@
         scrim.classList.toggle('is-on', on);
         sheet.setAttribute('aria-hidden', on ? 'false' : 'true');
         fab.setAttribute('aria-expanded', on ? 'true' : 'false');
-        fab.textContent = on ? 'Close help' : 'Need help?';
+        fab.textContent = on ? 'Close' : 'Message the shop';
         document.body.classList.toggle('help-open', on);
         if (on) {
           try { window.dispatchEvent(new CustomEvent('bld:help-open')); } catch (e) {}
@@ -460,10 +454,12 @@
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && sheet.classList.contains('is-on')) openHelp(false);
       });
+      var foot = document.getElementById('helpFoot');
+      if (foot) foot.addEventListener('submit', function (e) { e.preventDefault(); });
       window.BLDHelpChat = { open: openHelp, isOpen: function () { return sheet.classList.contains('is-on'); } };
     })();
   </script>
-  <script src="assets/js/data.js?v=20260325m"></script>
-  <script src="assets/js/store.js?v=20260325m"></script>
+  <script src="assets/js/data.js?v=20261013"></script>
+  <script src="assets/js/store.js?v=20261013"></script>
 </body>
 </html>

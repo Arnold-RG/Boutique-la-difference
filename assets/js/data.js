@@ -24,7 +24,7 @@
       updatedAt: new Date().toISOString(),
       settings: {
         shopName: 'Boutique La Différence',
-        tagline: 'Your neighborhood supermarket in Zindiro — food, drinks, electronics, home & more.',
+        tagline: 'Food, drinks, and the household things a week runs on. KG 11 Ave, Zindiro.',
         phone: '',
         whatsapp: '',
         address: 'KG 11 Ave, Zindiro, Kigali',
@@ -45,10 +45,10 @@
           whatsappChannel: ''
         },
         about: {
-          story: 'Boutique La Différence is a family-run neighborhood supermarket in Zindiro, Kigali — serving daily food, drinks, electronics, home equipment, tools, body products, and more.',
-          mission: 'Fair prices, reliable stock, and warm service for every household.'
+          story: 'Boutique La Différence is a family supermarket in Zindiro, Kigali. The shelves hold rice and oil, cold drinks, a bulb, a pan, a tool, soap — whatever the house is short of. The list changes when the delivery does.',
+          mission: 'Plain prices, stock that matches the shelf, and time enough to help you find it.'
         },
-        chatWelcome: 'Muraho! How can Boutique La Différence help you today?'
+        chatWelcome: 'Muraho. Tell us what you need from the shop.'
       },
       categories: DEFAULT_CATEGORIES.map(c => ({ ...c })),
       products: [],

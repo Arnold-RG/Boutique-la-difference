@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Sign in — Boutique La Différence</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="login-body">
+  <main class="login-shell">
+    <form class="login-card" method="post" action="/api/login" autocomplete="on">
+      <p class="login-kicker">Private office</p>
+      <h1>Boutique La Différence</h1>
+      <p class="login-lead">For the owner of the shop. Customers do not sign in.</p>
+      <p class="login-error" id="loginError" role="alert"></p>
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="username" required maxlength="80">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="200">
+      </div>
+      <button class="btn btn-brass" type="submit">Enter</button>
+      <p class="step-note"><a href="../">Back to the shop</a></p>
+    </form>
+  </main>
+  <script>
+    (function () {
+      var code = new URLSearchParams(location.search).get('e');
+      var messages = {
+        invalid: 'Those details were not accepted.',
+        locked: 'Too many attempts. Wait a few minutes, then try again.',
+        unconfigured: 'Sign-in is not set up on this server yet.'
+      };
+      var el = document.getElementById('loginError');
+      if (el && messages[code]) el.textContent = messages[code];
+    })();
+  </script>
+</body>
+</html>
