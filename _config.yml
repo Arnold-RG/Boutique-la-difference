@@ -1,0 +1,9 @@
+# GitHub Pages (branch source) publishes the shop and skips the private office.
+exclude:
+  - admin
+  - server
+  - .github
+  - .env.example
+  - README.md
+  - LICENSE
+  - node_modules

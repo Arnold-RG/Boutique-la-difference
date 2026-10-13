@@ -6,7 +6,7 @@ Use [`catalog.template.csv`](catalog.template.csv) as the master layout for Bout
 
 1. Open the template in **Microsoft Excel** or **Google Sheets**.
 2. Replace example rows with real stock (`name`, `category`, `price`, `cost`, `barcode`, `stock`, …).
-3. In the **admin portal** → **Excel / Sheets**:
+3. On the private server, open **Admin → Excel / Sheets** (not the public GitHub Pages address):
    - Drop a `.xlsx` or `.csv` file, **or**
    - Paste a Google Sheet URL and click **Sync**.
 4. The [public website](https://arnold-rg.github.io/Boutique-la-difference/) catalog updates from the same browser data store (or after sync on each device).

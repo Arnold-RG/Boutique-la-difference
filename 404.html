@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page not found — Boutique La Différence</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: #f4f0e8; color: #1a1916;
+      font-family: Georgia, "Times New Roman", serif;
+      padding: 32px;
+    }
+    main { max-width: 36rem; }
+    p.kicker { letter-spacing: .22em; text-transform: uppercase; font-family: "Segoe UI", sans-serif; font-size: .72rem; color: #6e5324; }
+    h1 { font-weight: 500; font-style: italic; font-size: clamp(2.6rem, 6vw, 4.4rem); line-height: .95; margin: 12px 0; }
+    p { font-family: "Segoe UI", sans-serif; line-height: 1.6; color: #3a3833; }
+    a { color: #1a1916; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="kicker">Boutique La Différence</p>
+    <h1>This page is not on the shelf.</h1>
+    <p>The address does not match anything in the shop.</p>
+    <p><a id="home" href="/">Return to the shop</a></p>
+  </main>
+  <script>
+    var home = document.getElementById('home');
+    if (location.hostname.endsWith('github.io')) home.href = '/Boutique-la-difference/';
+  </script>
+</body>
+</html>
