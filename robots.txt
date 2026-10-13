@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /Boutique-la-difference/admin/
+
+Sitemap: https://arnold-rg.github.io/Boutique-la-difference/sitemap.xml
