@@ -25,6 +25,7 @@
       return;
     }
 
+    const locked = BLDAuth.isLocked && BLDAuth.isLocked();
     root.innerHTML = `
       <div class="auth-wrap">
         <div class="auth-card">
@@ -33,30 +34,53 @@
           <p>Enter the fixed username and password to open the control centre.</p>
           <div class="field">
             <label>Username (fixed)</label>
-            <input id="liUser" value="${BLDAuth.getUsername()}" readonly tabindex="-1" class="input-locked">
+            <input id="liUser" value="${BLDAuth.getUsername()}" readonly tabindex="-1" class="input-locked" maxlength="64">
           </div>
           <div class="field">
             <label>Password</label>
-            <input id="liPass" type="password" autocomplete="current-password" placeholder="Enter admin password">
+            <input id="liPass" type="password" autocomplete="current-password" placeholder="Enter admin password" maxlength="128" ${locked ? 'disabled' : ''}>
           </div>
-          <div class="auth-error" id="authErr"></div>
-          <button class="btn btn-brass" id="btnLogin">Unlock dashboard</button>
+          <div class="auth-error" id="authErr">${locked ? esc(BLDAuth.rateLimitMessage()) : ''}</div>
+          <button class="btn btn-brass" id="btnLogin" ${locked ? 'disabled' : ''}>Unlock dashboard</button>
+          <p class="step-note" style="margin-top:14px;font-size:.78rem;color:var(--muted)">
+            Client-side PBKDF2 + rate limit (5 fails → 60s lock). See <a href="../SECURITY.md" style="color:var(--brass-2)">SECURITY.md</a>.
+          </p>
           <p class="step-note"><a href="../index.html" style="color:var(--brass-2)">← Back to public website</a></p>
         </div>
       </div>`;
     $('#btnLogin').onclick = doLogin;
-    $('#liPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
-    setTimeout(() => $('#liPass')?.focus(), 50);
+    $('#liPass')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+    if (locked) {
+      const tick = setInterval(() => {
+        if (!BLDAuth.isLocked()) {
+          clearInterval(tick);
+          renderAuth();
+          return;
+        }
+        const el = $('#authErr');
+        if (el) el.textContent = BLDAuth.rateLimitMessage();
+      }, 1000);
+    } else {
+      setTimeout(() => $('#liPass')?.focus(), 50);
+    }
   }
 
   async function doLogin() {
     const err = $('#authErr');
+    const btn = $('#btnLogin');
     err.textContent = '';
+    if (BLDAuth.isLocked && BLDAuth.isLocked()) {
+      err.textContent = BLDAuth.rateLimitMessage();
+      return;
+    }
     try {
+      if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
       const username = BLDAuth.getUsername();
       const password = $('#liPass').value;
-      const passOk = await BLDAuth.verifyPassword(username, password);
-      if (!passOk) throw new Error('Incorrect password.');
+      const result = await BLDAuth.verifyPassword(username, password);
+      if (!result || result.ok !== true) {
+        throw new Error((result && result.message) || BLDAuth.rateLimitMessage() || 'Incorrect password.');
+      }
       BLDAuth.registerThisDevice();
       BLDAuth.touchThisDevice();
       BLDAuth.createSession();
@@ -64,6 +88,11 @@
       renderDashboard();
     } catch (e) {
       err.textContent = e.message || String(e);
+    } finally {
+      if (btn && !BLDAuth.hasSession()) {
+        btn.disabled = BLDAuth.isLocked ? BLDAuth.isLocked() : false;
+        btn.textContent = 'Unlock dashboard';
+      }
     }
   }
 
@@ -89,7 +118,7 @@
             `).join('')}
           </nav>
           <div class="side-foot">
-            <a class="btn btn-outline btn-sm" href="../index.html" target="_blank" rel="noopener">View website</a>
+            <a class="btn btn-outline btn-sm" href="../index.html" target="_blank" rel="noopener noreferrer">View website</a>
             <button class="btn btn-ghost btn-sm" id="btnLogout" style="justify-content:flex-start;color:rgba(244,247,245,.7)">Sign out</button>
           </div>
         </aside>
@@ -325,7 +354,15 @@
         <div class="card-head"><h2>Account</h2></div>
         <p style="color:var(--muted);font-size:.9rem;margin:0">
           Username is fixed as <strong>${esc(BLDAuth.getUsername())}</strong> and cannot be changed.
-          Sign-in uses username + password only.
+          Password verified with <strong>PBKDF2-SHA256</strong> (210k iterations). Sessions last 8 hours.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Rate limit (client-side)</h2></div>
+        <p style="color:var(--muted);font-size:.9rem;margin:0">
+          After <strong>${BLDAuth.MAX_ATTEMPTS || 5}</strong> failed password attempts, sign-in locks for
+          <strong>${Math.round((BLDAuth.LOCK_MS || 60000) / 1000)}s</strong>.
+          This runs in the browser only — see <a href="../SECURITY.md" target="_blank" rel="noopener noreferrer" style="color:var(--brass-2)">SECURITY.md</a>.
         </p>
       </div>
       <div class="card">

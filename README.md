@@ -142,10 +142,15 @@ Template: [`data/catalog.template.csv`](data/catalog.template.csv)
 
 ## Security
 
+See [SECURITY.md](SECURITY.md) for disclosure policy and client-side limits.
+
 - Public site: **no** customer registration or login.
 - Admin username is fixed (`Family@nbr1`) and not editable in the UI.
 - Password verified with **PBKDF2-SHA256** (210,000 iterations).
 - Sessions last **8 hours** (session storage).
+- Rate limit: **5** failed attempts → **60s** client-side lock (documented; not server auth).
+- Product names/descriptions escaped before HTML render; external links use `noopener noreferrer`.
+- Cart: IndexedDB preferred with localStorage mirror; catalog seed from [`data/products.json`](data/products.json).
 
 ---
 

@@ -1,9 +1,14 @@
 /**
  * Boutique La Différence — shared data layer
- * Products / media / events live in localStorage and sync via Excel/CSV/Google Sheets.
+ * Catalog: data/products.json (seed) + localStorage vault + Excel/Sheets sync.
+ * Cart: IndexedDB preferred, localStorage fallback.
  */
 (function (global) {
   const STORE_KEY = 'bld-store-v1';
+  const CART_KEY = 'bld-cart-v1';
+  const IDB_NAME = 'bld-vault-v1';
+  const IDB_STORE = 'kv';
+  const SEED_URL = 'data/products.json';
   const DEFAULT_CATEGORIES = [
     { id: 'food', name: 'Food', blurb: 'Staples, fresh & pantry' },
     { id: 'drinks', name: 'Drinks', blurb: 'Water, juices & soft drinks' },
@@ -75,6 +80,75 @@
     };
   }
 
+  /* ---------- IndexedDB key-value vault ---------- */
+  let idbPromise = null;
+
+  function openIdb() {
+    if (idbPromise) return idbPromise;
+    if (!global.indexedDB) {
+      idbPromise = Promise.reject(new Error('IndexedDB unavailable'));
+      return idbPromise;
+    }
+    idbPromise = new Promise((resolve, reject) => {
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error || new Error('IndexedDB open failed'));
+    });
+    return idbPromise;
+  }
+
+  async function idbGet(key) {
+    const db = await openIdb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function idbSet(key, value) {
+    const db = await openIdb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(value, key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  /* ---------- Cart vault (IDB + localStorage mirror) ---------- */
+  function cartFromLocal() {
+    try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { return []; }
+  }
+
+  function cartToLocal(items) {
+    try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch (e) {}
+  }
+
+  async function loadCart() {
+    try {
+      const fromIdb = await idbGet(CART_KEY);
+      if (Array.isArray(fromIdb)) {
+        cartToLocal(fromIdb);
+        return fromIdb;
+      }
+    } catch (e) { /* fall through */ }
+    return cartFromLocal();
+  }
+
+  async function saveCart(items) {
+    const list = Array.isArray(items) ? items : [];
+    cartToLocal(list);
+    try { await idbSet(CART_KEY, list); } catch (e) { /* LS already written */ }
+    global.dispatchEvent(new CustomEvent('bld:cart', { detail: list }));
+    return list;
+  }
+
   function load() {
     try {
       const raw = localStorage.getItem(STORE_KEY);
@@ -94,7 +168,12 @@
 
   function save(data) {
     data.updatedAt = new Date().toISOString();
-    localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.warn('BLD: store save failed (quota?). Large media may exceed localStorage.', e);
+    }
+    try { idbSet(STORE_KEY, data).catch(() => {}); } catch (e) {}
     global.dispatchEvent(new CustomEvent('bld:store', { detail: data }));
     return data;
   }
@@ -111,6 +190,41 @@
     const cur = currency || load().settings.currency || 'RWF';
     const val = Number(n) || 0;
     return cur + ' ' + Math.round(val).toLocaleString('en-US');
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  /* ---------- Seed from data/products.json ---------- */
+  let seedPromise = null;
+
+  async function ensureSeedCatalog() {
+    if (seedPromise) return seedPromise;
+    seedPromise = (async () => {
+      const current = load();
+      if (current.products && current.products.length) return current;
+      try {
+        const res = await fetch(SEED_URL, { cache: 'no-cache' });
+        if (!res.ok) return current;
+        const json = await res.json();
+        const rows = Array.isArray(json.products) ? json.products : [];
+        const mapped = rows.map(normalizeProduct).filter(Boolean);
+        if (!mapped.length) return current;
+        return update(db => {
+          if (!db.products.length) db.products = mapped;
+          if (json.currency) db.settings.currency = json.currency;
+        });
+      } catch (e) {
+        return current;
+      }
+    })();
+    return seedPromise;
   }
 
   /* ---------- CSV / Excel helpers ---------- */
@@ -165,16 +279,16 @@
       id: o.id || o.sku || uid('p'),
       sku: o.sku || o.id || '',
       barcode: o.barcode || o.ean || o.upc || '',
-      name,
+      name: String(name).slice(0, 200),
       category: catMap[category] || (DEFAULT_CATEGORIES.some(c => c.id === category) ? category : 'more'),
       price: parseFloat(o.price || o.amount || '0') || 0,
       cost: parseFloat(o.cost || o.buy || o.purchase_price || '0') || 0,
-      unit: o.unit || 'unit',
+      unit: String(o.unit || 'unit').slice(0, 40),
       stock: Math.round(parseFloat(o.stock || o.qty || o.quantity || '0') || 0),
-      description: o.description || o.desc || o.notes || '',
+      description: String(o.description || o.desc || o.notes || '').slice(0, 1000),
       image: o.image || o.photo || o.img || o.image_url || '',
-      featured: String(o.featured || '').toLowerCase() === 'true' || o.featured === '1',
-      active: String(o.active || 'true').toLowerCase() !== 'false' && o.active !== '0'
+      featured: String(o.featured || '').toLowerCase() === 'true' || o.featured === '1' || o.featured === true,
+      active: String(o.active == null ? 'true' : o.active).toLowerCase() !== 'false' && o.active !== '0' && o.active !== false
     };
   }
 
@@ -361,6 +475,7 @@
 
   global.BLD = {
     STORE_KEY,
+    CART_KEY,
     DEFAULT_CATEGORIES,
     uid,
     emptyStore,
@@ -369,6 +484,7 @@
     save,
     update,
     money,
+    escapeHtml,
     parseCsv,
     rowsToObjects,
     normalizeProduct,
@@ -385,6 +501,9 @@
     logActivity,
     findByBarcode,
     readFileAsDataUrl,
-    saveUploadedImage
+    saveUploadedImage,
+    ensureSeedCatalog,
+    loadCart,
+    saveCart
   };
 })(window);

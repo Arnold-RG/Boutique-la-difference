@@ -1,64 +1,133 @@
 /**
  * Public storefront — catalog, cart, about, team, ads, chat (no login).
+ * Cart: IndexedDB + localStorage via BLD.loadCart / BLD.saveCart.
+ * Catalog: seeded from data/products.json when the vault is empty.
  */
 (function () {
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
-  const CART_KEY = 'bld-cart-v1';
 
-  let state = { category: 'all', query: '', data: null, cartOpen: false };
+  let state = { category: 'all', query: '', data: null, cartOpen: false, cart: [] };
+  let cartBusy = false;
 
-  function loadCart() {
-    try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { return []; }
+  function escapeHtml(s) {
+    return (BLD.escapeHtml ? BLD.escapeHtml(s) : String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
   }
-  function saveCart(items) {
-    localStorage.setItem(CART_KEY, JSON.stringify(items));
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  async function syncCartFromVault() {
+    state.cart = await BLD.loadCart();
     updateCartBadge();
+    updateStickyCart();
   }
-  function cartItems() { return loadCart(); }
+
+  async function persistCart(items) {
+    state.cart = items;
+    await BLD.saveCart(items);
+    updateCartBadge();
+    updateStickyCart();
+  }
+
+  function cartItems() { return state.cart || []; }
   function cartCount() { return cartItems().reduce((a, i) => a + (i.qty || 0), 0); }
   function cartTotal() {
     return cartItems().reduce((a, i) => a + (Number(i.price) || 0) * (i.qty || 0), 0);
   }
 
-  function addToCart(product) {
-    const items = loadCart();
-    const existing = items.find(i => i.id === product.id);
-    if (existing) existing.qty += 1;
-    else items.push({ id: product.id, name: product.name, price: product.price, unit: product.unit, qty: 1 });
-    saveCart(items);
-    toast(product.name + ' added to cart');
+  async function addToCart(product, btn) {
+    if (cartBusy) return;
+    cartBusy = true;
+    try {
+      const items = cartItems().slice();
+      const existing = items.find(i => i.id === product.id);
+      if (existing) existing.qty += 1;
+      else {
+        items.push({
+          id: product.id,
+          name: String(product.name || '').slice(0, 200),
+          price: Number(product.price) || 0,
+          unit: String(product.unit || 'unit').slice(0, 40),
+          qty: 1
+        });
+      }
+      await persistCart(items);
+      pulseAddButton(btn);
+      flyToCart(btn);
+      toast((product.name || 'Item') + ' added to cart');
+      if (state.cartOpen) renderCartDrawer();
+    } finally {
+      cartBusy = false;
+    }
   }
 
-  function setQty(id, qty) {
-    let items = loadCart();
+  function pulseAddButton(btn) {
+    if (!btn || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    btn.classList.remove('is-added');
+    void btn.offsetWidth;
+    btn.classList.add('is-added');
+    setTimeout(() => btn.classList.remove('is-added'), 650);
+  }
+
+  function flyToCart(fromEl) {
+    if (!fromEl || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const target = $('#stickyCartBar') || $('#cartBtn');
+    if (!target) return;
+    const a = fromEl.getBoundingClientRect();
+    const b = target.getBoundingClientRect();
+    const dot = document.createElement('span');
+    dot.className = 'cart-fly';
+    dot.style.left = (a.left + a.width / 2) + 'px';
+    dot.style.top = (a.top + a.height / 2) + 'px';
+    document.body.appendChild(dot);
+    requestAnimationFrame(() => {
+      dot.style.transform = 'translate(' +
+        ((b.left + b.width / 2) - (a.left + a.width / 2)) + 'px,' +
+        ((b.top + b.height / 2) - (a.top + a.height / 2)) + 'px) scale(.35)';
+      dot.style.opacity = '0';
+    });
+    setTimeout(() => dot.remove(), 520);
+  }
+
+  async function setQty(id, qty) {
+    let items = cartItems().slice();
     if (qty <= 0) items = items.filter(i => i.id !== id);
     else {
       const row = items.find(i => i.id === id);
       if (row) row.qty = qty;
     }
-    saveCart(items);
+    await persistCart(items);
     renderCartDrawer();
   }
 
   function updateCartBadge() {
+    const n = String(cartCount());
     const el = $('#cartCount');
-    if (el) el.textContent = String(cartCount());
+    if (el) el.textContent = n;
+    const stickyCount = $('#stickyCartCount');
+    if (stickyCount) stickyCount.textContent = n;
+  }
+
+  function updateStickyCart() {
+    const bar = $('#stickyCartBar');
+    if (!bar) return;
+    const n = cartCount();
+    const total = $('#stickyCartTotal');
+    if (total && state.data) {
+      total.textContent = BLD.money(cartTotal(), state.data.settings.currency);
+    }
+    bar.classList.toggle('is-visible', n > 0);
+    bar.setAttribute('aria-hidden', n > 0 ? 'false' : 'true');
+    document.body.classList.toggle('has-sticky-cart', n > 0);
   }
 
   function toast(msg) {
     const el = document.createElement('div');
     el.className = 'toast';
-    el.textContent = msg;
+    el.textContent = String(msg == null ? '' : msg);
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 2400);
   }
-
-  function escapeHtml(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-  function escapeAttr(s) { return escapeHtml(s).replace(/'/g, '&#39;'); }
 
   function activeProducts() {
     return (state.data.products || []).filter(p => p.active !== false);
@@ -87,18 +156,38 @@
       if (p.image.startsWith('media:') || p.image.startsWith('id:')) {
         const id = p.image.replace(/^(media:|id:)/, '');
         const m = (state.data.media || []).find(x => x.id === id);
-        if (m && m.dataUrl) return `<img src="${m.dataUrl}" alt="">`;
+        if (m && m.dataUrl) return '<img src="' + m.dataUrl + '" alt="" loading="lazy" decoding="async">';
       }
-      return `<img src="${escapeAttr(p.image)}" alt="" loading="lazy">`;
+      return '<img src="' + escapeAttr(p.image) + '" alt="" loading="lazy" decoding="async">';
     }
-    return `<span>Photo via admin</span>`;
+    const letter = escapeHtml(String(p.name || '?').charAt(0).toUpperCase());
+    return '<span class="product-ph" aria-hidden="true">' + letter + '</span>';
+  }
+
+  function observeReveals(root) {
+    if (!('IntersectionObserver' in window)) {
+      $$('[data-reveal]', root).forEach(el => el.classList.add('is-in'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(en => {
+        if (en.isIntersecting) {
+          en.target.classList.add('is-in');
+          io.unobserve(en.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    $$('[data-reveal]', root).forEach((el, i) => {
+      el.style.setProperty('--reveal-delay', (i % 8) * 45 + 'ms');
+      io.observe(el);
+    });
   }
 
   function renderCategories() {
     const grid = $('#catGrid');
     if (!grid) return;
     grid.innerHTML = (state.data.categories || []).map(c => `
-      <button class="cat-tile" type="button" data-cat="${c.id}">
+      <button class="cat-tile" type="button" data-cat="${escapeAttr(c.id)}" data-reveal>
         <span class="cat-count">${countByCategory(c.id)} items</span>
         <h3>${escapeHtml(c.name)}</h3>
         <span>${escapeHtml(c.blurb || '')}</span>
@@ -110,6 +199,7 @@
       renderProducts();
       $('#catalog')?.scrollIntoView({ behavior: 'smooth' });
     }));
+    observeReveals(grid);
   }
 
   function renderFilters() {
@@ -117,7 +207,7 @@
     if (!wrap) return;
     const chips = [{ id: 'all', name: 'All' }].concat(state.data.categories || []);
     wrap.innerHTML = chips.map(c => `
-      <button type="button" class="chip ${state.category === c.id ? 'active' : ''}" data-cat="${c.id}">${escapeHtml(c.name)}</button>
+      <button type="button" class="chip ${state.category === c.id ? 'active' : ''}" data-cat="${escapeAttr(c.id)}">${escapeHtml(c.name)}</button>
     `).join('');
     $$('.chip', wrap).forEach(btn => btn.addEventListener('click', () => {
       state.category = btn.dataset.cat;
@@ -134,28 +224,32 @@
       grid.innerHTML = `
         <div class="empty-state">
           <strong>Catalog waiting for inventory</strong>
-          Product names, prices, and photos load from Excel / the admin dashboard — nothing is hard-coded here.
+          Product names, prices, and photos load from <code>data/products.json</code>, Excel, or the admin dashboard.
         </div>`;
       return;
     }
     grid.innerHTML = list.map(p => `
-      <article class="product-card">
+      <article class="product-card" data-reveal>
         <div class="product-media">${productImage(p)}</div>
         <div class="product-body">
           <div class="cat">${escapeHtml(labelCat(p.category))}</div>
           <h3>${escapeHtml(p.name)}</h3>
+          ${p.description ? `<p class="product-desc">${escapeHtml(p.description)}</p>` : ''}
           <div class="product-meta">
             <span class="price">${BLD.money(p.price, state.data.settings.currency)}</span>
             <span class="unit">/ ${escapeHtml(p.unit || 'unit')}</span>
           </div>
-          <button type="button" class="btn btn-solid btn-add" data-add="${p.id}">Add to cart</button>
+          <button type="button" class="btn btn-solid btn-add" data-add="${escapeAttr(p.id)}">
+            <span class="btn-add-label">Add to cart</span>
+          </button>
         </div>
       </article>
     `).join('');
     $$('[data-add]', grid).forEach(btn => btn.addEventListener('click', () => {
       const p = activeProducts().find(x => x.id === btn.dataset.add);
-      if (p) addToCart(p);
+      if (p) addToCart(p, btn);
     }));
+    observeReveals(grid);
   }
 
   function renderPromos() {
@@ -172,13 +266,14 @@
     if (!items.length) { band.hidden = true; return; }
     band.hidden = false;
     host.innerHTML = items.slice(0, 6).map(i => `
-      <div class="promo-item${i.image ? ' has-img' : ''}">
-        ${i.image ? `<img class="promo-img" src="${escapeAttr(i.image)}" alt="">` : ''}
+      <div class="promo-item${i.image ? ' has-img' : ''}" data-reveal>
+        ${i.image ? `<img class="promo-img" src="${escapeAttr(i.image)}" alt="" loading="lazy">` : ''}
         <span class="badge-sale">${escapeHtml(i.badge)}</span>
         <h4>${escapeHtml(i.title || 'Update')}</h4>
         <p>${escapeHtml(i.body || '')}</p>
       </div>
     `).join('');
+    observeReveals(host);
   }
 
   function ratingWord(n) {
@@ -290,11 +385,11 @@
         db.reviews = db.reviews || [];
         db.reviews.unshift({
           id: BLD.uid('rev'),
-          name: ($('#fbName').value || '').trim() || 'Guest',
+          name: ($('#fbName').value || '').trim().slice(0, 80) || 'Guest',
           rating,
           reaction: $('#fbReaction').value || '',
-          product: $('#fbProduct').value || 'General service',
-          comment: ($('#fbComment').value || '').trim(),
+          product: ($('#fbProduct').value || 'General service').slice(0, 200),
+          comment: ($('#fbComment').value || '').trim().slice(0, 500),
           at: new Date().toISOString()
         });
       });
@@ -326,7 +421,9 @@
       ['WhatsApp', s.whatsappChannel]
     ].filter(([, url]) => url);
     if (!links.length) return '<p style="color:var(--muted);font-size:.9rem">Social links appear here when the owner adds them in admin.</p>';
-    return links.map(([label, url]) => `<a class="social-chip" href="${escapeAttr(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`).join('');
+    return links.map(([label, url]) =>
+      `<a class="social-chip" href="${escapeAttr(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`
+    ).join('');
   }
 
   function renderSocial() {
@@ -351,17 +448,18 @@
       if (t.photo) {
         if (String(t.photo).startsWith('media:')) {
           const m = (state.data.media || []).find(x => x.id === t.photo.replace('media:', ''));
-          if (m) img = `<img src="${m.dataUrl}" alt="">`;
-        } else img = `<img src="${escapeAttr(t.photo)}" alt="">`;
+          if (m) img = `<img src="${m.dataUrl}" alt="" loading="lazy">`;
+        } else img = `<img src="${escapeAttr(t.photo)}" alt="" loading="lazy">`;
       }
       return `
-        <article class="team-card">
+        <article class="team-card" data-reveal>
           <div class="team-photo">${img || '<span>Photo</span>'}</div>
           <h3>${escapeHtml(t.name)}</h3>
           <div class="role">${escapeHtml(t.role || '')}</div>
           <p>${escapeHtml(t.bio || '')}</p>
         </article>`;
     }).join('');
+    observeReveals(grid);
   }
 
   function renderAds() {
@@ -373,14 +471,15 @@
       return;
     }
     grid.innerHTML = ads.map(a => `
-      <a class="ad-card" href="${escapeAttr(a.link || '#')}" ${a.link ? 'target="_blank" rel="noopener"' : ''}>
-        ${a.image ? `<img src="${escapeAttr(a.image)}" alt="">` : '<div class="ad-ph">Partner</div>'}
+      <a class="ad-card" href="${escapeAttr(a.link || '#')}" ${a.link ? 'target="_blank" rel="noopener noreferrer"' : ''} data-reveal>
+        ${a.image ? `<img src="${escapeAttr(a.image)}" alt="" loading="lazy">` : '<div class="ad-ph">Partner</div>'}
         <div class="ad-body">
           <h3>${escapeHtml(a.businessName)}</h3>
           <p>${escapeHtml(a.blurb || '')}</p>
         </div>
       </a>
     `).join('');
+    observeReveals(grid);
   }
 
   function renderGallery() {
@@ -412,6 +511,7 @@
     if (wa) {
       if (s.whatsapp) {
         wa.href = 'https://wa.me/' + s.whatsapp.replace(/\D/g, '');
+        wa.rel = 'noopener noreferrer';
         wa.hidden = false;
       } else wa.hidden = true;
     }
@@ -498,6 +598,7 @@
     state.cartOpen = open;
     $('#cartDrawer')?.classList.toggle('open', open);
     $('#cartScrim')?.classList.toggle('open', open);
+    document.body.classList.toggle('cart-open', open);
     if (open) renderCartDrawer();
   }
 
@@ -515,9 +616,9 @@
             <div class="muted">${BLD.money(i.price, state.data.settings.currency)} / ${escapeHtml(i.unit || 'unit')}</div>
           </div>
           <div class="qty">
-            <button type="button" data-q="${i.id}" data-d="-1">−</button>
+            <button type="button" data-q="${escapeAttr(i.id)}" data-d="-1" aria-label="Decrease">−</button>
             <span>${i.qty}</span>
-            <button type="button" data-q="${i.id}" data-d="1">+</button>
+            <button type="button" data-q="${escapeAttr(i.id)}" data-d="1" aria-label="Increase">+</button>
           </div>
         </div>
       `).join('');
@@ -530,14 +631,15 @@
     const total = $('#cartTotal');
     if (total) total.textContent = BLD.money(cartTotal(), state.data.settings.currency);
     updateCartBadge();
+    updateStickyCart();
   }
 
-  function checkout() {
+  async function checkout() {
     const items = cartItems();
     if (!items.length) return toast('Cart is empty');
-    const name = $('#coName')?.value.trim();
-    const phone = $('#coPhone')?.value.trim();
-    const addr = $('#coAddr')?.value.trim();
+    const name = ($('#coName')?.value || '').trim().slice(0, 80);
+    const phone = ($('#coPhone')?.value || '').trim().slice(0, 40);
+    const addr = ($('#coAddr')?.value || '').trim().slice(0, 200);
     if (!name || !phone) return toast('Name and phone are required');
 
     const lines = items.map(i => `• ${i.name} x${i.qty} = ${Math.round(i.price * i.qty)}`);
@@ -560,8 +662,8 @@
 
     const wa = (state.data.settings.whatsapp || '').replace(/\D/g, '') || '25079401854';
     const msg = `New order — Boutique La Différence%0AName: ${encodeURIComponent(name)}%0APhone: ${encodeURIComponent(phone)}%0AAddress: ${encodeURIComponent(addr || '—')}%0A%0A${lines.map(encodeURIComponent).join('%0A')}%0A%0ATotal: ${encodeURIComponent(BLD.money(total))}`;
-    window.open(`https://wa.me/${wa}?text=${msg}`, '_blank');
-    saveCart([]);
+    window.open(`https://wa.me/${wa}?text=${msg}`, '_blank', 'noopener,noreferrer');
+    await persistCart([]);
     renderCartDrawer();
     toast('Order sent — we will confirm on WhatsApp');
   }
@@ -585,7 +687,7 @@
 
   function sendChat() {
     const input = $('#helpInput');
-    const text = input?.value.trim();
+    const text = (input?.value || '').trim().slice(0, 500);
     if (!text) return;
     BLD.update(db => {
       db.chatMessages = db.chatMessages || [];
@@ -611,6 +713,7 @@
     renderReviews();
     setupHeroVideo();
     updateCartBadge();
+    updateStickyCart();
     renderChat();
   }
 
@@ -630,6 +733,7 @@
     $$('a', links).forEach(a => a.addEventListener('click', () => links?.classList.remove('open')));
 
     $('#cartBtn')?.addEventListener('click', () => openCart(true));
+    $('#stickyCartBar')?.addEventListener('click', () => openCart(true));
     $('#cartClose')?.addEventListener('click', () => openCart(false));
     $('#cartScrim')?.addEventListener('click', () => openCart(false));
     $('#btnCheckout')?.addEventListener('click', checkout);
@@ -640,15 +744,26 @@
     renderChat();
 
     window.addEventListener('bld:store', refresh);
+    window.addEventListener('bld:cart', (e) => {
+      if (Array.isArray(e.detail)) state.cart = e.detail;
+      updateCartBadge();
+      updateStickyCart();
+      if (state.cartOpen) renderCartDrawer();
+    });
     window.addEventListener('storage', (e) => {
       if (e.key === BLD.STORE_KEY) refresh();
+      if (e.key === BLD.CART_KEY) syncCartFromVault().then(() => {
+        if (state.cartOpen) renderCartDrawer();
+      });
     });
 
     const sheet = BLD.get().settings.sheetUrl;
     if (sheet) BLD.syncFromSheet(sheet).then(() => refresh()).catch(() => {});
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    await syncCartFromVault();
+    await BLD.ensureSeedCatalog();
     refresh();
     wire();
   });

@@ -1,5 +1,10 @@
 /**
- * Admin auth — fixed username + password only.
+ * Admin auth — fixed username + PBKDF2-SHA256 password + client rate limit.
+ *
+ * Limits (client-side only — documented in SECURITY.md):
+ * - 5 failed attempts → 60s lockout
+ * - Session: 8 hours in sessionStorage
+ * Not a substitute for server-side authentication on a static host.
  */
 (function (global) {
   const FIXED_USERNAME = 'Family@nbr1';
@@ -10,6 +15,10 @@
   const SESSION_KEY = 'bld-admin-session-v4';
   const DEVICE_KEY = 'bld-allowed-devices-v1';
   const DEVICE_ID_KEY = 'bld-this-device-id-v1';
+  const RATE_KEY = 'bld-auth-rate-v1';
+  const MAX_ATTEMPTS = 5;
+  const LOCK_MS = 60 * 1000;
+
   const encoder = new TextEncoder();
 
   function b64(buf) {
@@ -43,11 +52,80 @@
 
   function getUsername() { return FIXED_USERNAME; }
 
+  function loadRate() {
+    try {
+      const raw = localStorage.getItem(RATE_KEY);
+      if (!raw) return { fails: 0, lockedUntil: 0 };
+      const o = JSON.parse(raw);
+      return {
+        fails: Number(o.fails) || 0,
+        lockedUntil: Number(o.lockedUntil) || 0
+      };
+    } catch (e) {
+      return { fails: 0, lockedUntil: 0 };
+    }
+  }
+
+  function saveRate(state) {
+    localStorage.setItem(RATE_KEY, JSON.stringify(state));
+  }
+
+  function getLockRemainingMs() {
+    const r = loadRate();
+    const left = (r.lockedUntil || 0) - Date.now();
+    return left > 0 ? left : 0;
+  }
+
+  function isLocked() {
+    return getLockRemainingMs() > 0;
+  }
+
+  function recordFailedAttempt() {
+    const r = loadRate();
+    if (r.lockedUntil && Date.now() < r.lockedUntil) return r;
+    r.fails = (r.fails || 0) + 1;
+    if (r.fails >= MAX_ATTEMPTS) {
+      r.lockedUntil = Date.now() + LOCK_MS;
+      r.fails = 0;
+    }
+    saveRate(r);
+    return r;
+  }
+
+  function clearRateLimit() {
+    saveRate({ fails: 0, lockedUntil: 0 });
+  }
+
+  function rateLimitMessage() {
+    const left = getLockRemainingMs();
+    if (left > 0) {
+      const sec = Math.ceil(left / 1000);
+      return 'Too many failed attempts. Try again in ' + sec + 's. (Client-side lock — see SECURITY.md.)';
+    }
+    const r = loadRate();
+    const remaining = Math.max(0, MAX_ATTEMPTS - (r.fails || 0));
+    if (remaining <= 2 && remaining > 0) {
+      return 'Incorrect password. ' + remaining + ' attempt' + (remaining === 1 ? '' : 's') + ' left before a 60s lock.';
+    }
+    return 'Incorrect password.';
+  }
+
   async function verifyPassword(username, password) {
-    if (String(username || '').trim() !== FIXED_USERNAME) return false;
-    if (!password) return false;
+    if (isLocked()) return { ok: false, reason: 'locked', message: rateLimitMessage() };
+    if (String(username || '').trim() !== FIXED_USERNAME) {
+      recordFailedAttempt();
+      return { ok: false, reason: 'bad_user', message: rateLimitMessage() };
+    }
+    if (!password) {
+      return { ok: false, reason: 'empty', message: 'Enter the admin password.' };
+    }
     const hash = await deriveKey(password, PASS_SALT_B64, PASS_ITERS);
-    return hash === PASS_HASH_B64;
+    if (hash !== PASS_HASH_B64) {
+      recordFailedAttempt();
+      return { ok: false, reason: 'bad_pass', message: rateLimitMessage() };
+    }
+    clearRateLimit();
+    return { ok: true };
   }
 
   function getOrCreateDeviceId() {
@@ -127,8 +205,13 @@
 
   global.BLDAuth = {
     FIXED_USERNAME,
+    MAX_ATTEMPTS,
+    LOCK_MS,
     getUsername,
     verifyPassword,
+    isLocked,
+    getLockRemainingMs,
+    rateLimitMessage,
     getOrCreateDeviceId,
     loadDevices,
     registerThisDevice,

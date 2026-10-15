@@ -1,8 +1,14 @@
-# Inventory data (Excel / Sheets)
+# Inventory data
 
-Use [`catalog.template.csv`](catalog.template.csv) as the master layout for Boutique La Différence products.
+## Seed JSON (default catalog)
 
-## How to connect
+[`products.json`](products.json) loads automatically on first visit when the browser vault has no products. Admin Excel / Sheets sync or manual edits then override it in `localStorage` / IndexedDB.
+
+## Excel / Sheets template
+
+Use [`catalog.template.csv`](catalog.template.csv) as the master layout.
+
+### How to connect
 
 1. Open the template in **Microsoft Excel** or **Google Sheets**.
 2. Replace example rows with real stock (`name`, `category`, `price`, `cost`, `barcode`, `stock`, …).
@@ -11,10 +17,11 @@ Use [`catalog.template.csv`](catalog.template.csv) as the master layout for Bout
    - Paste a Google Sheet URL and click **Sync**.
 4. The [public website](https://arnold-rg.github.io/Boutique-la-difference/) catalog updates from the same browser data store (or after sync on each device).
 
-## Tools involved
+## Storage notes
 
-- Microsoft Excel / Google Sheets — editing inventory  
-- SheetJS — reading Excel in the browser  
-- CSV export from Google Sheets — live sync URL  
+| Data | Where |
+|------|--------|
+| Catalog / settings / orders | `localStorage` (`bld-store-v1`) + IndexedDB mirror |
+| Shopping cart | IndexedDB preferred, `localStorage` fallback (`bld-cart-v1`) |
 
-See the main [README](../README.md) for the full technology list.
+See [SECURITY.md](../SECURITY.md) for XSS and auth limits.
