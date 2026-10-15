@@ -9,14 +9,14 @@
   <meta name="description" content="Boutique La Différence — neighborhood supermarket in Zindiro, Kigali. Shop food, drinks, electronics, home goods and more. No account needed.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/arnova/arnova-base.css?v=20261015c">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261015c">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/arnova/arnova-base.css?v=20261016a">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261016a">
   <style id="chatCritical">
     /* Critical chat open/close — works even if site.css is cached */
     #helpScrim {
       position: fixed; inset: 0; z-index: 80;
-      background: rgba(4, 10, 22, .62);
+      background: rgba(20, 4, 10, .7);
       opacity: 0; visibility: hidden; pointer-events: none;
       transition: opacity .2s ease, visibility .2s ease;
     }
@@ -27,56 +27,56 @@
       max-height: min(72vh, 560px);
       transform: translate(-50%, 110%);
       transition: transform .28s cubic-bezier(.2,.8,.2,1);
-      background: #0e1a2e;
-      border: 1px solid rgba(140,180,220,.16);
+      background: #3b0a1a;
+      border: 1px solid rgba(245,230,200,.16);
       border-bottom: 0;
       border-radius: 22px 22px 0 0;
       box-shadow: 0 -24px 60px -20px rgba(0,0,0,.65);
       display: flex; flex-direction: column;
-      color: #e8eef8;
+      color: #f5e6c8;
       overflow: hidden;
     }
     #helpSheet.is-on { transform: translate(-50%, 0); }
     #helpSheet .help-head {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 14px 16px; background: #060d18; flex-shrink: 0;
+      padding: 14px 16px; background: #1a0610; flex-shrink: 0;
     }
     #helpSheet .help-head strong { font-size: 1rem; }
     #helpCloseBtn {
       border: 0; cursor: pointer;
-      background: #3d9a68; color: #fff;
+      background: #b76e79; color: #f5e6c8;
       font-weight: 700; font-size: .85rem;
       padding: 10px 14px; border-radius: 999px;
     }
     #helpCloseBtn:hover { filter: brightness(1.08); }
     #helpBody {
       flex: 1; overflow: auto; padding: 14px; min-height: 180px;
-      display: flex; flex-direction: column; gap: 8px; background: #0a1424;
+      display: flex; flex-direction: column; gap: 8px; background: #240812;
     }
     #helpBody .chat-bubble {
       max-width: 90%; padding: 8px 10px; border-radius: 12px; font-size: .85rem;
     }
-    #helpBody .chat-bubble .meta { font-size: .68rem; color: #8ba0b8; margin-bottom: 2px; }
-    #helpBody .chat-bubble.customer { background: #152438; border: 1px solid rgba(140,180,220,.14); align-self: flex-end; }
-    #helpBody .chat-bubble.admin { background: #1a4a35; color: #fff; align-self: flex-start; }
+    #helpBody .chat-bubble .meta { font-size: .68rem; color: #c4a890; margin-bottom: 2px; }
+    #helpBody .chat-bubble.customer { background: #4a1024; border: 1px solid rgba(245,230,200,.14); align-self: flex-end; }
+    #helpBody .chat-bubble.admin { background: #5a1830; color: #f5e6c8; align-self: flex-start; }
     #helpBody .chat-bubble.admin .meta { color: rgba(255,255,255,.65); }
     #helpFoot {
-      display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(140,180,220,.14);
-      background: #0e1a2e; flex-shrink: 0;
+      display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(245,230,200,.14);
+      background: #3b0a1a; flex-shrink: 0;
     }
     #helpInput {
-      flex: 1; border: 1px solid rgba(140,180,220,.14); border-radius: 12px;
-      padding: 11px 12px; background: #152438; color: #e8eef8;
+      flex: 1; border: 1px solid rgba(245,230,200,.14); border-radius: 12px;
+      padding: 11px 12px; background: #4a1024; color: #f5e6c8;
     }
     #helpSend {
       border: 0; cursor: pointer; padding: 11px 16px; border-radius: 12px;
-      background: #c9a227; color: #07140f; font-weight: 700;
+      background: #b76e79; color: #f5e6c8; font-weight: 700;
     }
     #helpFab {
       position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); z-index: 70;
       border: 0; cursor: pointer;
       padding: 12px 16px; border-radius: 999px;
-      background: #3d9a68; color: #fff; font-weight: 700;
+      background: #b76e79; color: #f5e6c8; font-weight: 700;
       box-shadow: 0 16px 40px -18px rgba(0,0,0,.7);
       font-size: .88rem;
     }
@@ -474,8 +474,8 @@
       window.BLDHelpChat = { open: openHelp, isOpen: function () { return sheet.classList.contains('is-on'); } };
     })();
   </script>
-  <script src="assets/arnova/arnova-secure.js?v=20261015c"></script>
-  <script src="assets/js/data.js?v=20261015c"></script>
-  <script src="assets/js/store.js?v=20261015c"></script>
+  <script src="assets/arnova/arnova-secure.js?v=20261016a"></script>
+  <script src="assets/js/data.js?v=20261016a"></script>
+  <script src="assets/js/store.js?v=20261016a"></script>
 </body>
 </html>

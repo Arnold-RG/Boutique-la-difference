@@ -1,14 +1,15 @@
 # Boutique La Différence
 
-[![Live site](https://img.shields.io/badge/Live-GitHub%20Pages-2ea44f?logo=github)](https://arnold-rg.github.io/Boutique-la-difference/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Live site](https://img.shields.io/badge/Live-GitHub%20Pages-3B0A1A?logo=github)](https://arnold-rg.github.io/Boutique-la-difference/)
+[![Palette](https://img.shields.io/badge/wine%20%2B%20champagne%20%2B%20rose--gold-B76E79)](https://arnold-rg.github.io/Boutique-la-difference/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-F5E6C8?style=flat&labelColor=3B0A1A)](LICENSE)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES2020-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
 Professional **neighborhood supermarket** storefront for **Boutique La Différence** (Zindiro, Kigali) — food, drinks, electronics, home equipment, tools, body products, and more.
 
-Built as a modern static web app: dark navy UI with green accents, Excel-driven inventory, shopping cart, and a full owner admin portal secured with username + password.
+Built as a modern static web app: dark boutique luxury UI (wine, champagne, rose-gold), Excel-driven inventory, shopping cart, and a full owner admin portal secured with username + password.
 
 | Surface | URL |
 |--------|-----|
@@ -49,7 +50,7 @@ Everything used to design, build, secure, and host this site:
 | Tool / technology | Role in this project |
 |-------------------|----------------------|
 | **HTML5** | Semantic storefront & admin page structure |
-| **CSS3** | Dark navy design system, layout, responsive UI, motion |
+| **CSS3** | Wine / champagne / rose-gold design system, layout, responsive UI, motion |
 | **JavaScript (ES2020+)** | App logic, routing-style tabs, cart, CRUD, sync |
 | **[SheetJS (xlsx)](https://sheetjs.com/)** | Import / parse Excel (`.xlsx`) workbooks in the browser |
 | **CSV + Google Sheets export** | Spreadsheet sync without a custom backend |
@@ -57,7 +58,7 @@ Everything used to design, build, secure, and host this site:
 | **Web Crypto API** | PBKDF2-SHA256 password hashing |
 | **localStorage / sessionStorage** | Catalog, orders, session & device memory (static hosting) |
 | **Canvas 2D** | Cinematic hero atmosphere when no video URL is set |
-| **Google Fonts** | [Newsreader](https://fonts.google.com/specimen/Newsreader) + [Sora](https://fonts.google.com/specimen/Sora) |
+| **Google Fonts** | [Cormorant Garamond](https://fonts.google.com/specimen/Cormorant+Garamond) + [Outfit](https://fonts.google.com/specimen/Outfit) |
 | **Git** | Version control |
 | **GitHub** | Source hosting & collaboration |
 | **GitHub Pages** | Free worldwide HTTPS hosting |

@@ -179,7 +179,7 @@
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
     $$('[data-reveal]', root).forEach((el, i) => {
-      el.style.setProperty('--reveal-delay', (i % 8) * 45 + 'ms');
+      el.style.setProperty('--reveal-delay', (i % 10) * 55 + 'ms');
       io.observe(el);
     });
   }
