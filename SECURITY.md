@@ -19,7 +19,10 @@ We aim to acknowledge reports within 7 days and publish a fix or mitigation when
 ## Practice
 
 - No secrets in source; use `.env.example` only
-- Prefer `textContent` over `innerHTML` for untrusted data
+- Prefer `textContent` / escaped HTML for untrusted data (chat, reviews, product fields)
 - External links use `rel="noopener noreferrer"`
+- Content-Security-Policy meta on storefront and admin
+- Referrer policy: `strict-origin-when-cross-origin`
+- Cart and catalog vault prefer IndexedDB with localStorage mirror (GitHub Pages has no server DB)
+- Admin auth is client-side for a static Pages deploy — treat it as a shop-floor gate, not bank-grade hosting security
 - Dependabot / Actions least privilege where applicable
-

@@ -204,9 +204,32 @@
   /* ---------- Seed from data/products.json ---------- */
   let seedPromise = null;
 
+  async function hydrateStoreFromIdb() {
+    try {
+      const fromIdb = await idbGet(STORE_KEY);
+      if (!fromIdb || typeof fromIdb !== 'object') return load();
+      const ls = load();
+      const idbN = (fromIdb.products || []).length + (fromIdb.chatMessages || []).length;
+      const lsN = (ls.products || []).length + (ls.chatMessages || []).length;
+      if (idbN > lsN || (!(ls.products || []).length && (fromIdb.products || []).length)) {
+        const merged = Object.assign(emptyStore(), fromIdb, {
+          settings: Object.assign(emptyStore().settings, fromIdb.settings || {}, {
+            social: Object.assign(emptyStore().settings.social, (fromIdb.settings && fromIdb.settings.social) || {}),
+            about: Object.assign(emptyStore().settings.about, (fromIdb.settings && fromIdb.settings.about) || {})
+          }),
+          categories: (fromIdb.categories && fromIdb.categories.length) ? fromIdb.categories : emptyStore().categories
+        });
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(merged)); } catch (e) {}
+        return merged;
+      }
+    } catch (e) { /* keep localStorage */ }
+    return load();
+  }
+
   async function ensureSeedCatalog() {
     if (seedPromise) return seedPromise;
     seedPromise = (async () => {
+      await hydrateStoreFromIdb();
       const current = load();
       if (current.products && current.products.length) return current;
       try {

@@ -11,6 +11,7 @@
   let cartBusy = false;
 
   function escapeHtml(s) {
+    if (window.ArnovaSecure && ArnovaSecure.escapeHtml) return ArnovaSecure.escapeHtml(s);
     return (BLD.escapeHtml ? BLD.escapeHtml(s) : String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
   }

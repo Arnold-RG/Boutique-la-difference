@@ -135,16 +135,38 @@ h1, h2, h3, .display { font-family: var(--font-display); font-weight: 560; lette
   animation: rise .9s ease both;
   min-width: 0;
 }
-.hero-kicker {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--brass-2); margin-bottom: 18px;
+.hero-brand {
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 8.5vw, 5.2rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  color: var(--text);
+  max-width: 14ch;
 }
 .hero h1 {
-  font-size: clamp(2.1rem, 8vw, 5.2rem); max-width: 12ch; margin: 0 0 18px;
+  font-family: var(--font-ui);
+  font-size: clamp(1.15rem, 2.8vw, 1.55rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  max-width: 22ch;
+  margin: 0 0 14px;
+  color: var(--brass-2);
 }
 .hero p {
-  max-width: 38ch; margin: 0 0 28px; font-size: 1.05rem; color: rgba(232,238,248,.78);
+  max-width: 38ch; margin: 0 0 28px; font-size: clamp(0.95rem, 2.2vw, 1.08rem); color: rgba(232,238,248,.78);
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
 }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 @keyframes rise {
@@ -1109,12 +1131,16 @@ textarea.fb-control {
   min-height: 100dvh;
   padding-bottom: max(2rem, env(safe-area-inset-bottom));
 }
+.hero-brand {
+  font-size: clamp(2.2rem, 8vw, 5rem);
+}
 .hero h1 {
-  font-size: clamp(2rem, 7vw, 4.5rem);
-  max-width: 14ch;
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+  max-width: 24ch;
+  color: var(--brass-2);
 }
 .hero p {
-  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+  font-size: clamp(0.95rem, 2.4vw, 1.12rem);
   max-width: 40ch;
 }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
