@@ -1093,3 +1093,72 @@ textarea.fb-control {
   font-size: 1.2rem;
   margin-bottom: 6px;
 }
+
+/* —— Device coverage: phones → tablets → laptops → desktops → ultrawide —— */
+:root {
+  --nav-h: clamp(56px, 8vw, 72px);
+  --page-pad: max(12px, env(safe-area-inset-left), env(safe-area-inset-right));
+}
+.container {
+  width: min(1120px, calc(100% - 2 * clamp(12px, 3vw, 24px)));
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+.hero {
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+}
+.hero h1 {
+  font-size: clamp(2rem, 7vw, 4.5rem);
+  max-width: 14ch;
+}
+.hero p {
+  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+  max-width: 40ch;
+}
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.hero-actions .btn { min-height: 44px; padding: 0.75rem 1.2rem; }
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
+  gap: clamp(10px, 2vw, 18px);
+}
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr));
+  gap: clamp(10px, 2vw, 16px);
+}
+.btn, .cart-btn, .menu-toggle, .filter-chip, #helpFab, #helpSend, #helpCloseBtn {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+@media (max-width: 359px) {
+  .brand-sub { display: none; }
+  .cart-label { display: none; }
+  .product-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+}
+@media (min-width: 360px) and (max-width: 767px) {
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .section { padding-block: clamp(2.5rem, 8vw, 4rem); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (min-width: 1440px) {
+  .container { width: min(1280px, calc(100% - 48px)); }
+  .product-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (min-width: 1800px) {
+  .container { width: min(1400px, calc(100% - 64px)); }
+  .product-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+@supports (padding: max(0px)) {
+  .site-nav {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+}
