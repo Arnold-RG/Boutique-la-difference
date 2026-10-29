@@ -161,13 +161,13 @@ test('sign-in without server secrets does not accept a password', async () => {
   }
 });
 
-// Retired values are checked by SHA-256 only, so the literals never appear in
-// the repository: the old admin username, a fragment of the old public password
-// hash, and the old shop phone number.
+// The old public password hash is checked by the SHA-256 of a 16-character
+// fragment of it (high-entropy, not reversible by brute force), so the
+// literal never appears in the repository. Low-entropy personal values (the
+// retired username and the old phone number) are deliberately not encoded
+// here at all, not even hashed, because such hashes are trivially reversible.
 const RETIRED_SHA256 = new Set([
-  '8c215d9726de2521b788d2806fb34e1e5da0dd426c446e52f81b937afb9d853b',
-  'e5579abbd86687034e0cb9fb2219c8104ffcf6841c51288da1142e41ceae0660',
-  '4c77feee46814eb60ecc8dac41d8ed48f2f22b860055c8cdbdec5b4e61ad38d5'
+  'e5579abbd86687034e0cb9fb2219c8104ffcf6841c51288da1142e41ceae0660'
 ]);
 
 function sha256(text) {
@@ -191,7 +191,7 @@ test('the repository does not contain the old admin password material', () => {
     const text = fs.readFileSync(abs, 'utf8');
     const tokens = text.match(/[A-Za-z0-9@._+-]{6,}/g) || [];
     for (const token of tokens) {
-      const variants = [token, token.replace(/[^0-9]/g, ''), token.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g, '')];
+      const variants = [token, token.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g, '')];
       for (const v of variants) {
         assert.equal(RETIRED_SHA256.has(sha256(v)), false, path.relative(root, abs));
       }
