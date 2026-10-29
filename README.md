@@ -164,7 +164,7 @@ Before you retire the old public admin page, open it once and download a JSON ba
    ```
    - `ADMIN_USERNAME` — the name you will type at the door
    - `ADMIN_PASSWORD_HASH` — the line printed by the hash script
-   - `SESSION_SECRET` — a long random string:
+   - `SESSION_SECRET` — a long random string (at least 16 characters). It signs the session cookie (HMAC-SHA256), so a changed secret signs everyone out:
      ```bash
      node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
      ```
@@ -173,8 +173,8 @@ Before you retire the old public admin page, open it once and download a JSON ba
    set -a && source .env && set +a
    node server/index.js
    ```
-5. Open `http://localhost:8080/admin/login`. Five wrong attempts from the same network pause sign-in for 15 minutes. A successful session lasts 8 hours (`SESSION_HOURS`). Sign out from the office when you leave a shared computer.
-6. For a public office address, run this same server behind HTTPS (Caddy, nginx, Render, Fly.io, or a small VPS). Set `TRUST_PROXY=1` only when that proxy sends `X-Forwarded-For` and `X-Forwarded-Proto`. The cookie is marked Secure on HTTPS.
+5. Open `http://localhost:8080/admin/login`. Five wrong attempts from the same network, or ten for the same username from anywhere, pause sign-in for 15 minutes. A successful session lasts 8 hours (`SESSION_HOURS`). Sign out from the office when you leave a shared computer.
+6. For a public office address, run this same server behind HTTPS (Caddy, nginx, Render, Fly.io, or a small VPS). Set `TRUST_PROXY=1` only when that proxy sends `X-Forwarded-For` and `X-Forwarded-Proto`. The server then uses the address your proxy appended (the right-most entry), not the first one, which a client can fake. If there are several proxies in a chain, set `TRUST_PROXY_HOPS` to their number. The cookie is marked Secure on HTTPS.
 7. Do not commit `.env`.
 
 Shop records (catalog, orders, staff, debts, chat) stay in that browser’s `localStorage`. They are not uploaded by the server. Do not commit customer exports, camera passwords, or the `.env` file.
@@ -194,7 +194,9 @@ See [SECURITY.md](SECURITY.md) for disclosure policy.
 - The shop has no customer account.
 - The office requires `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` (scrypt), and `SESSION_SECRET`.
 - The session is an HttpOnly, SameSite=Strict cookie. It is also Secure when the request is HTTPS.
-- Wrong attempts are locked per network address and username.
+- Wrong attempts are locked per network address and username, and per username across all addresses.
+- The session cookie is `<random id>.<HMAC>` signed with `SESSION_SECRET`. Sessions, failure counters, and rate windows are pruned every minute.
+- Content-Security-Policy on the shop, office, and login pages allows scripts from `'self'` (and the office's three CDNs) only: no inline scripts.
 - Admin responses send `noindex`. `robots.txt` disallows `/admin/`.
 - Product names/descriptions escaped before HTML render; external links use `noopener noreferrer`.
 - Cart: IndexedDB preferred with localStorage mirror; catalog seed from [`data/products.json`](data/products.json).

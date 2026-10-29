@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="referrer" content="no-referrer">
+  <meta name="referrer" content="same-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>Sign in — Boutique La Différence</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,17 +32,6 @@
       <p class="step-note"><a href="../">Back to the shop</a></p>
     </form>
   </main>
-  <script>
-    (function () {
-      var code = new URLSearchParams(location.search).get('e');
-      var messages = {
-        invalid: 'Those details were not accepted.',
-        locked: 'Too many attempts. Wait a few minutes, then try again.',
-        unconfigured: 'Sign-in is not set up on this server yet.'
-      };
-      var el = document.getElementById('loginError');
-      if (el && messages[code]) el.textContent = messages[code];
-    })();
-  </script>
+  <script src="../assets/js/admin-login.js"></script>
 </body>
 </html>

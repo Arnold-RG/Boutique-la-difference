@@ -4,7 +4,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
-const { createApp } = require('./index');
+const crypto = require('crypto');
+const { createApp, pickForwardedFor } = require('./index');
 const { hashPassword, verifyPassword } = require('./passwords');
 
 const root = path.join(__dirname, '..');
@@ -23,7 +24,7 @@ async function boot(options) {
   const decoyHash = await hashPassword('decoy-not-the-password');
   const server = createApp(Object.assign({
     root,
-    username: 'shop-owner',
+    username: 'test-admin',
     passwordHash,
     sessionSecret: 'test-session-secret-value',
     sessionHours: 1,
@@ -86,12 +87,12 @@ test('public shop is open and the office is not', async () => {
 test('sign-in sets a session and sign-out ends it', async () => {
   const app = await boot({});
   try {
-    const bad = await postLogin(app.base, 'shop-owner', 'not-the-password');
+    const bad = await postLogin(app.base, 'test-admin', 'not-the-password');
     assert.equal(bad.status, 303);
     assert.equal(bad.headers.get('location'), '/admin/login?e=invalid');
     assert.equal(cookieFrom(bad), '');
 
-    const good = await postLogin(app.base, 'shop-owner', app.password);
+    const good = await postLogin(app.base, 'test-admin', app.password);
     assert.equal(good.status, 303);
     assert.equal(good.headers.get('location'), '/admin/');
     const cookie = cookieFrom(good);
@@ -107,7 +108,7 @@ test('sign-in sets a session and sign-out ends it', async () => {
     const session = await fetch(app.base + '/api/session', { headers: { cookie } });
     const body = await session.json();
     assert.equal(body.ok, true);
-    assert.equal(body.username, 'shop-owner');
+    assert.equal(body.username, 'test-admin');
 
     const out = await fetch(app.base + '/api/logout', {
       method: 'POST',
@@ -128,13 +129,13 @@ test('repeated failures lock the door, then it opens again', async () => {
   const app = await boot({});
   try {
     for (let i = 0; i < 3; i += 1) {
-      const res = await postLogin(app.base, 'shop-owner', 'wrong-password-' + i);
+      const res = await postLogin(app.base, 'test-admin', 'wrong-password-' + i);
       assert.equal(res.headers.get('location'), '/admin/login?e=invalid');
     }
-    const locked = await postLogin(app.base, 'shop-owner', app.password);
+    const locked = await postLogin(app.base, 'test-admin', app.password);
     assert.equal(locked.headers.get('location'), '/admin/login?e=locked');
     await new Promise((resolve) => setTimeout(resolve, 1400));
-    const again = await postLogin(app.base, 'shop-owner', app.password);
+    const again = await postLogin(app.base, 'test-admin', app.password);
     assert.equal(again.headers.get('location'), '/admin/');
   } finally {
     await app.close();
@@ -160,18 +161,154 @@ test('sign-in without server secrets does not accept a password', async () => {
   }
 });
 
+// Retired values are checked by SHA-256 only, so the literals never appear in
+// the repository: the old admin username, a fragment of the old public password
+// hash, and the old shop phone number.
+const RETIRED_SHA256 = new Set([
+  '8c215d9726de2521b788d2806fb34e1e5da0dd426c446e52f81b937afb9d853b',
+  'e5579abbd86687034e0cb9fb2219c8104ffcf6841c51288da1142e41ceae0660',
+  '4c77feee46814eb60ecc8dac41d8ed48f2f22b860055c8cdbdec5b4e61ad38d5'
+]);
+
+function sha256(text) {
+  return crypto.createHash('sha256').update(text).digest('hex');
+}
+
+function walk(dir, out) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name === '.git' || entry.name === 'node_modules') continue;
+    const abs = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(abs, out);
+    else if (/\.(html|js|css|json|md|txt|xml|yml|yaml|csv|example|webmanifest)$/i.test(entry.name)) out.push(abs);
+  }
+  return out;
+}
+
 test('the repository does not contain the old admin password material', () => {
-  const files = [
-    'admin/js/auth.js',
-    'admin/js/admin.js',
-    'README.md',
-    'index.html',
-    'server/index.js'
-  ];
-  files.forEach((rel) => {
-    const text = fs.readFileSync(path.join(root, rel), 'utf8');
-    assert.equal(text.includes('Family@nbr1'), false, rel);
-    assert.equal(text.includes('FMRm4xer7e7mwc1h'), false, rel);
-    assert.equal(text.includes('25079401854'), false, rel);
-  });
+  const files = walk(root, []);
+  assert.ok(files.length > 10);
+  for (const abs of files) {
+    const text = fs.readFileSync(abs, 'utf8');
+    const tokens = text.match(/[A-Za-z0-9@._+-]{6,}/g) || [];
+    for (const token of tokens) {
+      const variants = [token, token.replace(/[^0-9]/g, ''), token.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g, '')];
+      for (const v of variants) {
+        assert.equal(RETIRED_SHA256.has(sha256(v)), false, path.relative(root, abs));
+      }
+    }
+  }
+});
+
+test('X-Forwarded-For uses the proxy-appended entry, not the client-supplied first one', async () => {
+  assert.equal(pickForwardedFor('6.6.6.6, 203.0.113.9', 1, 'direct'), '203.0.113.9');
+  assert.equal(pickForwardedFor('6.6.6.6, 203.0.113.9, 10.0.0.2', 2, 'direct'), '203.0.113.9');
+  assert.equal(pickForwardedFor('203.0.113.9', 3, 'direct'), '203.0.113.9');
+  assert.equal(pickForwardedFor('', 1, 'direct'), 'direct');
+  assert.equal(pickForwardedFor(undefined, 1, 'direct'), 'direct');
+
+  const app = await boot({ trustProxy: true, maxAttempts: 2, accountMaxAttempts: 50 });
+  try {
+    // Spoofing different first entries must not dodge the per-IP lockout.
+    for (let i = 0; i < 2; i += 1) {
+      await fetch(app.base + '/api/login', {
+        method: 'POST',
+        redirect: 'manual',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Forwarded-For': '9.9.9.' + i + ', 198.51.100.7' },
+        body: new URLSearchParams({ username: 'test-admin', password: 'wrong-' + i })
+      });
+    }
+    const res = await fetch(app.base + '/api/login', {
+      method: 'POST',
+      redirect: 'manual',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Forwarded-For': '1.2.3.4, 198.51.100.7' },
+      body: new URLSearchParams({ username: 'test-admin', password: app.password })
+    });
+    assert.equal(res.headers.get('location'), '/admin/login?e=locked');
+  } finally {
+    await app.close();
+  }
+});
+
+test('per-account lockout holds across different addresses', async () => {
+  const app = await boot({ trustProxy: true, maxAttempts: 50, accountMaxAttempts: 3 });
+  try {
+    const login = (ip, password) => fetch(app.base + '/api/login', {
+      method: 'POST',
+      redirect: 'manual',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Forwarded-For': ip },
+      body: new URLSearchParams({ username: 'test-admin', password })
+    });
+    for (let i = 0; i < 3; i += 1) {
+      const res = await login('198.51.100.' + (10 + i), 'wrong-' + i);
+      assert.equal(res.headers.get('location'), '/admin/login?e=invalid');
+    }
+    const locked = await login('198.51.100.99', app.password);
+    assert.equal(locked.headers.get('location'), '/admin/login?e=locked');
+    await new Promise((resolve) => setTimeout(resolve, 1400));
+    const again = await login('198.51.100.99', app.password);
+    assert.equal(again.headers.get('location'), '/admin/');
+  } finally {
+    await app.close();
+  }
+});
+
+test('expired sessions, failures and rate windows are pruned', async () => {
+  let clock = 1_000_000;
+  const app = await boot({ now: () => clock, sessionHours: 1, lockoutMs: 1000 });
+  try {
+    await postLogin(app.base, 'test-admin', 'wrong');
+    const good = await postLogin(app.base, 'test-admin', app.password);
+    assert.match(cookieFrom(good), /^bld_session=[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
+    await postLogin(app.base, 'someone-else', 'wrong');
+    let sizes = app.server.storeSizes();
+    assert.equal(sizes.sessions, 1);
+    assert.ok(sizes.failures >= 1 && sizes.accountFailures >= 1 && sizes.rates >= 1);
+
+    clock += 2 * 60 * 60 * 1000; // past session expiry, lockout and rate window
+    app.server.sweep();
+    sizes = app.server.storeSizes();
+    assert.deepEqual(sizes, { sessions: 0, failures: 0, accountFailures: 0, rates: 0 });
+  } finally {
+    await app.close();
+  }
+});
+
+test('a session cookie with a bad signature is rejected', async () => {
+  const app = await boot({});
+  try {
+    const good = await postLogin(app.base, 'test-admin', app.password);
+    const cookie = cookieFrom(good);
+    const [id] = cookie.replace('bld_session=', '').split('.');
+    const forged = 'bld_session=' + id + '.' + 'A'.repeat(43);
+    const res = await fetch(app.base + '/api/session', { headers: { cookie: forged } });
+    assert.equal(res.status, 401);
+    const bare = await fetch(app.base + '/api/session', { headers: { cookie: 'bld_session=' + id } });
+    assert.equal(bare.status, 401);
+    const ok = await fetch(app.base + '/api/session', { headers: { cookie } });
+    assert.equal(ok.status, 200);
+  } finally {
+    await app.close();
+  }
+});
+
+test('login accepts Origin: null only with Sec-Fetch-Site: same-origin', async () => {
+  const app = await boot({});
+  try {
+    const send = (headers) => fetch(app.base + '/api/login', {
+      method: 'POST',
+      redirect: 'manual',
+      headers: Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded' }, headers),
+      body: new URLSearchParams({ username: 'test-admin', password: app.password })
+    });
+    assert.equal((await send({ Origin: 'null', 'Sec-Fetch-Site': 'cross-site' })).status, 403);
+    assert.equal((await send({ Origin: 'null' })).status, 403);
+    const ok = await send({ Origin: 'null', 'Sec-Fetch-Site': 'same-origin' });
+    assert.equal(ok.headers.get('location'), '/admin/');
+    const page = await fetch(app.base + '/admin/login');
+    assert.equal(page.headers.get('referrer-policy'), 'same-origin');
+    const html = await page.text();
+    assert.match(html, /<meta name="referrer" content="same-origin">/);
+  } finally {
+    await app.close();
+  }
 });
