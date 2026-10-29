@@ -709,7 +709,9 @@
     updateStickyCart();
   }
 
-  async function checkout() {
+  // Synchronous on purpose: WhatsApp must open inside the submit/click
+  // handler (user activation), before any await, or browsers block it.
+  function checkout() {
     const items = cartItems();
     if (!items.length) return toast('Your cart is empty');
     const name = ($('#coName')?.value || '').trim().slice(0, 80);
@@ -719,6 +721,31 @@
 
     const lines = items.map(i => '• ' + i.name + ' x' + i.qty + ' — ' + BLD.money(i.price * i.qty));
     const total = cartTotal();
+    const wa = (state.data.settings.whatsapp || '').replace(/\D/g, '');
+    let url = '';
+    if (wa) {
+      const text = [
+        'Order — Boutique La Différence',
+        'Name: ' + name,
+        'Phone: ' + phone,
+        'Address: ' + (addr || '—'),
+        '',
+        lines.join('\n'),
+        '',
+        'Total: ' + BLD.money(total)
+      ].join('\n');
+      url = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(text);
+    }
+
+    // Open first, synchronously, while the click still counts as user activation.
+    let popup = null;
+    if (url) {
+      popup = window.open(url, '_blank');
+      if (popup) {
+        try { popup.opener = null; } catch (e) { /* cross-origin already */ }
+      }
+    }
+
     const order = {
       id: BLD.uid('ord'),
       customer: name,
@@ -734,27 +761,18 @@
       db.orders.unshift(order);
     });
     BLD.logActivity('order', 'Web cart order from ' + name + ' — ' + BLD.money(total));
+    persistCart([]).then(renderCartDrawer, renderCartDrawer);
 
-    const wa = (state.data.settings.whatsapp || '').replace(/\D/g, '');
-    await persistCart([]);
-    renderCartDrawer();
-    if (!wa) {
+    if (!url) {
       toast('Order saved on this browser. The shop has not published a WhatsApp number yet.');
       return;
     }
-    const text = [
-      'Order — Boutique La Différence',
-      'Name: ' + name,
-      'Phone: ' + phone,
-      'Address: ' + (addr || '—'),
-      '',
-      lines.join('\n'),
-      '',
-      'Total: ' + BLD.money(total)
-    ].join('\n');
-    const popup = window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer');
-    if (!popup) toast('Order saved here. Allow the new window if you want WhatsApp to open.');
-    else toast('The list is ready on WhatsApp. The shop will confirm.');
+    if (popup) {
+      toast('The list is ready on WhatsApp. The shop will confirm.');
+    } else {
+      // Popup blocked anyway: hand over in this tab instead of showing a notice.
+      window.location.href = url;
+    }
   }
 
   function renderChat() {
@@ -867,8 +885,13 @@
       $('#btnCheckout')?.addEventListener('click', checkout);
     }
 
-    $('#helpSend')?.addEventListener('click', sendChat);
-    $('#helpInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+    const helpForm = $('#helpFoot');
+    if (helpForm && helpForm.tagName === 'FORM' && window.BLDChatForm) {
+      BLDChatForm.bindChatForm(helpForm, sendChat);
+    } else {
+      $('#helpSend')?.addEventListener('click', sendChat);
+      $('#helpInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendChat(); } });
+    }
     window.addEventListener('bld:help-open', renderChat);
     renderChat();
 
