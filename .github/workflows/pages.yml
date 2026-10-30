@@ -41,6 +41,7 @@ jobs:
             --exclude 'node_modules' \
             --exclude 'README.md' \
             --exclude 'LICENSE' \
+            --exclude '/docs' \
             ./ _public/
 
       - name: Upload site
