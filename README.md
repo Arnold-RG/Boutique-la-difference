@@ -13,6 +13,12 @@ Professional **neighborhood supermarket** storefront for **Boutique La Différen
 
 A static shop for customers, and a private office for the owner. The public pages are open to everyone. The admin portal is served only by the shop server, behind a hashed password and an HttpOnly session.
 
+![Boutique La Différence catalog with product cards and RWF prices](docs/screenshots/boutique-desktop-catalog.webp)
+
+| Home | Phone |
+|---|---|
+| ![Boutique La Différence home page hero](docs/screenshots/boutique-desktop-fold.webp) | <img src="docs/screenshots/boutique-phone-fold.webp" width="260" alt="Boutique La Différence home page on a phone"> |
+
 | Surface | URL |
 |--------|-----|
 | **Public shop** | [arnold-rg.github.io/Boutique-la-difference](https://arnold-rg.github.io/Boutique-la-difference/) |
