@@ -205,7 +205,7 @@
     if (!grid) return;
     grid.innerHTML = (state.data.categories || []).map(c => `
       <button class="cat-tile" type="button" data-cat="${escapeAttr(c.id)}" data-reveal>
-        <span class="cat-count">${countByCategory(c.id)} items</span>
+        <span class="cat-count">${countByCategory(c.id)} ${countByCategory(c.id) === 1 ? 'item' : 'items'}</span>
         <h3>${escapeHtml(c.name)}</h3>
         <span>${escapeHtml(c.blurb || '')}</span>
       </button>
