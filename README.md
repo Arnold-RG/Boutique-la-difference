@@ -9,6 +9,8 @@
 
 Professional **neighborhood supermarket** storefront for **Boutique La Différence** (Zindiro, Kigali) — food, drinks, electronics, home equipment, tools, body products, and more.
 
+[![Boutique La Différence](docs/screenshot.jpg)](https://arnold-rg.github.io/Boutique-la-difference/)
+
 Built as a modern static web app: dark boutique luxury UI (wine, champagne, rose-gold), Excel-driven inventory, shopping cart, and a full owner admin portal secured with username + password.
 
 | Surface | URL |
@@ -165,7 +167,7 @@ See [SECURITY.md](SECURITY.md) for disclosure policy and client-side limits.
 
 ## Author
 
-**Arnold Rurangwa** · ARNOVA Group · Computer Engineer  
+**Arnold Rurangwa**  
 
 Repository: [Arnold-RG/Boutique-la-difference](https://github.com/Arnold-RG/Boutique-la-difference)
 
