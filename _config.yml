@@ -1,4 +1,5 @@
-# GitHub Pages (branch source) publishes the shop and skips the private office.
+# GitHub Pages (branch source) publishes the shop.
+# The office is not in this repository; these excludes are a safety net.
 exclude:
   - admin
   - server

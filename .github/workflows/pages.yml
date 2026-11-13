@@ -29,6 +29,8 @@ jobs:
 
       - name: Prepare the public shop
         run: |
+          # admin/ and server/ are not in this tree; the excludes stay as a safety net.
+
           mkdir -p _public
           rsync -a \
             --exclude '_public' \
