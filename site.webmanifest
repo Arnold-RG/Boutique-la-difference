@@ -1,0 +1,12 @@
+{
+  "name": "Boutique La Différence",
+  "short_name": "La Différence",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f0e8",
+  "theme_color": "#14241e",
+  "lang": "en",
+  "icons": [
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

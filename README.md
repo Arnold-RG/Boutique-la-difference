@@ -7,16 +7,21 @@
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES2020-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
-Professional **neighborhood supermarket** storefront for **Boutique La Différence** (Zindiro, Kigali) — food, drinks, electronics, home equipment, tools, body products, and more.
-
 [![Boutique La Différence](docs/screenshot.jpg)](https://arnold-rg.github.io/Boutique-la-difference/)
 
-Built as a modern static web app: dark boutique luxury UI (wine, champagne, rose-gold), Excel-driven inventory, shopping cart, and a full owner admin portal secured with username + password.
+Professional **neighborhood supermarket** storefront for **Boutique La Différence** (Zindiro, Kigali) — food, drinks, electronics, home equipment, tools, body products, and more.
+
+This repository is the **public shop only**. It is a static GitHub Pages site. Customers do not sign in. The owner’s office (sign-in, stock tools, staff records) lives in a separate private repository, `Arnold-RG/boutique-la-difference-office`, and is not part of this tree or the Pages build.
+
+![Boutique La Différence catalog with product cards and RWF prices](docs/screenshots/boutique-desktop-catalog.webp)
+
+| Home | Phone |
+|---|---|
+| ![Boutique La Différence home page hero](docs/screenshots/boutique-desktop-fold.webp) | <img src="docs/screenshots/boutique-phone-fold.webp" width="260" alt="Boutique La Différence home page on a phone"> |
 
 | Surface | URL |
 |--------|-----|
 | **Public shop** | [arnold-rg.github.io/Boutique-la-difference](https://arnold-rg.github.io/Boutique-la-difference/) |
-| **Admin portal** | […/admin/](https://arnold-rg.github.io/Boutique-la-difference/admin/) |
 | **Repository** | [github.com/Arnold-RG/Boutique-la-difference](https://github.com/Arnold-RG/Boutique-la-difference) |
 
 ---
@@ -30,35 +35,21 @@ Built as a modern static web app: dark boutique luxury UI (wine, champagne, rose
 - Events & discounts, gallery, map & hours
 - Social links + customer service chat widget
 
-### Admin portal (owner only)
-- Fixed account · **username + password** only
-- Products & prices, barcode scan, Excel / Google Sheets sync
-- Revenue charts, sales, payments, debts, orders & shipments
-- Stock & purchases, daily activity, logistics
-- Employees, shifts, salary calculator
-- CCTV camera tiles (stream / embed URLs)
-- Customer service inbox, policy rules
-- Team, social media, advertise other Rwandan businesses
-- Site settings, image library, JSON backup
-
-Catalog **names, prices, and photos are not hard-coded** — they come from Excel / CSV / Sheets or the admin UI.
+Catalog **names, prices, and photos are not hard-coded** — they come from [`data/products.json`](data/products.json), from Excel / CSV / Sheets, or from a JSON backup restored in the private office.
 
 ---
 
 ## Programming tools & technologies
 
-Everything used to design, build, secure, and host this site:
+Everything used to design, build, and host the public shop:
 
 | Tool / technology | Role in this project |
 |-------------------|----------------------|
-| **HTML5** | Semantic storefront & admin page structure |
+| **HTML5** | Semantic storefront structure |
 | **CSS3** | Wine / champagne / rose-gold design system, layout, responsive UI, motion |
-| **JavaScript (ES2020+)** | App logic, routing-style tabs, cart, CRUD, sync |
-| **[SheetJS (xlsx)](https://sheetjs.com/)** | Import / parse Excel (`.xlsx`) workbooks in the browser |
-| **CSV + Google Sheets export** | Spreadsheet sync without a custom backend |
-| **[Chart.js](https://www.chartjs.org/)** | Admin revenue charts (last 7 days) |
-| **Web Crypto API** | PBKDF2-SHA256 password hashing |
-| **localStorage / sessionStorage** | Catalog, orders, session & device memory (static hosting) |
+| **JavaScript (ES2020+)** | App logic, cart, catalog render |
+| **CSV + Google Sheets export** | Spreadsheet sync without a custom backend on the shop |
+| **localStorage / IndexedDB** | Catalog vault and cart on this origin (GitHub Pages has no server DB) |
 | **Canvas 2D** | Cinematic hero atmosphere when no video URL is set |
 | **Google Fonts** | [Cormorant Garamond](https://fonts.google.com/specimen/Cormorant+Garamond) + [Outfit](https://fonts.google.com/specimen/Outfit) |
 | **Git** | Version control |
@@ -66,13 +57,6 @@ Everything used to design, build, secure, and host this site:
 | **GitHub Pages** | Free worldwide HTTPS hosting |
 | **Microsoft Excel / Google Sheets** | Inventory master data for the shop |
 | **WhatsApp deep links** | Order handoff from the cart |
-
-### Runtime & libraries (CDN)
-
-| Library | Purpose |
-|---------|---------|
-| `xlsx` (SheetJS) | Excel import in admin |
-| `chart.js` | Dashboard charts |
 
 No Node/npm build step is required to run the live site — open the HTML files or use GitHub Pages.
 
@@ -83,34 +67,28 @@ No Node/npm build step is required to run the live site — open the HTML files 
 ```
 Boutique-la-difference/
 ├── index.html                 # Public storefront
-├── admin/
-│   ├── index.html             # Owner dashboard (login + modules)
-│   └── device.html            # Optional companion device page
 ├── assets/
 │   ├── css/
-│   │   ├── site.css           # Public dark theme
-│   │   └── admin.css          # Admin dark theme
+│   │   └── site.css           # Public shop
 │   └── js/
-│       ├── data.js            # Shared store · Excel/CSV/Sheets
-│       ├── auth.js            # Username + password security
-│       ├── store.js           # Public UI · cart · chat
-│       ├── admin.js           # Dashboard shell · products · settings
-│       └── admin-ops.js       # Sales · CCTV · staff · debts · ads …
+│       ├── data.js            # Catalog store · Excel/CSV/Sheets
+│       └── store.js           # Public UI · cart · chat
 ├── data/
+│   ├── products.json          # Catalog seed
 │   ├── catalog.template.csv   # Inventory column template
-│   └── README.md              # How to connect Excel
+│   └── README.md              # How to update the catalog
 ├── LICENSE                    # MIT
 └── README.md
 ```
+
+The `admin/` folder, office scripts, password hash, and sign-in server are not in this repository.
 
 ---
 
 ## Quick start
 
 ### Online
-1. Open the [live shop](https://arnold-rg.github.io/Boutique-la-difference/).
-2. Open [admin](https://arnold-rg.github.io/Boutique-la-difference/admin/).
-3. Sign in with the fixed owner username and password.
+Open the [live shop](https://arnold-rg.github.io/Boutique-la-difference/). Customers do not sign in.
 
 ### Local
 1. Clone the repo:
@@ -118,8 +96,7 @@ Boutique-la-difference/
    git clone https://github.com/Arnold-RG/Boutique-la-difference.git
    cd Boutique-la-difference
    ```
-2. Open `index.html` in a browser (or serve the folder with any static server).
-3. Open `admin/index.html` for the control centre.
+2. Open `index.html` in a browser, or serve the folder with any static file server.
 
 ---
 
@@ -134,40 +111,41 @@ Template: [`data/catalog.template.csv`](data/catalog.template.csv)
 | `price` / `cost` | Sell & cost amounts |
 | `barcode` / `sku` | Scan & lookup |
 | `unit` / `stock` | Unit label & quantity |
-| `image` | URL or attach in Admin → Images |
+| `image` | URL or attach from the private office |
 | `featured` / `active` | `true` / `false` |
 
-**Google Sheet:** share or publish as CSV, paste the URL in **Admin → Excel / Sheets → Sync**.
+The public catalog seed is [`data/products.json`](data/products.json). To change what every visitor sees, edit that file in this repository (or open a pull request). Spreadsheet sync and full JSON backup are tools in the private office, not on this public site.
 
-**Backup:** export / restore full JSON from the admin Excel section.
+**Backup of an old in-browser office:** the previous public admin page stored stock, orders, and notes in that browser. Before that page is retired, open it once and download a JSON backup. A new office address starts empty until that file is restored there. The public shop on GitHub Pages and a hosted office are different origins, so they do not share `localStorage`.
 
----
+## Publishing the shop
+
+The live shop is [https://arnold-rg.github.io/Boutique-la-difference/](https://arnold-rg.github.io/Boutique-la-difference/).
+
+`.github/workflows/pages.yml` publishes the public files to GitHub Pages on every push to `main`. In the repository, open **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions**.
+
+If Pages is still set to deploy from the branch, `_config.yml` leaves out any leftover office or server paths. Switch the source to GitHub Actions when you can, so the workflow is what goes live.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for disclosure policy and client-side limits.
+See [SECURITY.md](SECURITY.md) for disclosure policy.
 
-- Public site: **no** customer registration or login.
-- Admin username is fixed (`Family@nbr1`) and not editable in the UI.
-- Password verified with **PBKDF2-SHA256** (210,000 iterations).
-- Sessions last **8 hours** (session storage).
-- Rate limit: **5** failed attempts → **60s** client-side lock (documented; not server auth).
+- The shop has no customer account and no owner login.
+- This repository does not contain an admin password, password hash, TOTP seed, or session secret.
 - Product names/descriptions escaped before HTML render; external links use `noopener noreferrer`.
 - Cart: IndexedDB preferred with localStorage mirror; catalog seed from [`data/products.json`](data/products.json).
 
----
-
 ## Design
 
-- Dark navy blue surfaces · forest green accents · brass CTAs  
-- Typography: **Newsreader** (display) + **Sora** (UI)  
-- Responsive layout for phone, tablet, and desktop  
+- Ivory paper, deep forest, and a champagne-gold rule
+- Typography: **Cormorant Garamond** for titles, **Outfit** for the interface
+- Layout for phones, tablets, laptops, wide monitors, and large screens  
 
 ---
 
 ## Author
 
-**Arnold Rurangwa**  
+**Arnold Rurangwa** · Computer Engineer  
 
 Repository: [Arnold-RG/Boutique-la-difference](https://github.com/Arnold-RG/Boutique-la-difference)
 

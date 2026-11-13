@@ -1,0 +1,10 @@
+# GitHub Pages (branch source) publishes the shop.
+# The office is not in this repository; these excludes are a safety net.
+exclude:
+  - admin
+  - server
+  - .github
+  - .env.example
+  - README.md
+  - LICENSE
+  - node_modules
