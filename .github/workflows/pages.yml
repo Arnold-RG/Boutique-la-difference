@@ -41,7 +41,6 @@ jobs:
             --exclude 'admin' \
             --exclude 'server' \
             --exclude 'node_modules' \
-            --exclude 'README.md' \
             --exclude 'LICENSE' \
             --exclude '/docs' \
             ./ _public/

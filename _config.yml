@@ -5,6 +5,5 @@ exclude:
   - server
   - .github
   - .env.example
-  - README.md
   - LICENSE
   - node_modules
