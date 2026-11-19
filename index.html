@@ -1,434 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; frame-src https://maps.google.com https://www.google.com; connect-src 'self' https://docs.google.com https://*.google.com; base-uri 'self'; form-action 'self'; object-src 'none'">
-  <title>Boutique La Différence — Zindiro, Kigali</title>
-  <meta name="description" content="Boutique La Différence is a neighborhood supermarket on KG 11 Ave in Zindiro, Kigali. Food, drinks, electronics, home goods, tools, and body products. No account needed.">
-  <meta name="theme-color" content="#f4f0e8">
-  <link rel="canonical" href="https://arnold-rg.github.io/Boutique-la-difference/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Boutique La Différence">
-  <meta property="og:title" content="Boutique La Différence — Zindiro, Kigali">
-  <meta property="og:description" content="A neighborhood supermarket on KG 11 Ave. Food, drinks, and the household things a week runs on.">
-  <meta property="og:url" content="https://arnold-rg.github.io/Boutique-la-difference/">
-  <meta property="og:image" content="https://arnold-rg.github.io/Boutique-la-difference/assets/og.png">
-  <meta property="og:locale" content="en_RW">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Boutique La Différence — Zindiro, Kigali">
-  <meta name="twitter:description" content="A neighborhood supermarket on KG 11 Ave. Food, drinks, and the household things a week runs on.">
-  <meta name="twitter:image" content="https://arnold-rg.github.io/Boutique-la-difference/assets/og.png">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="manifest" href="site.webmanifest">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/vira/vira-base.css?v=20261029r">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261029r">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "GroceryStore",
-    "name": "Boutique La Différence",
-    "url": "https://arnold-rg.github.io/Boutique-la-difference/",
-    "image": "https://arnold-rg.github.io/Boutique-la-difference/assets/og.png",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "KG 11 Ave",
-      "addressLocality": "Zindiro",
-      "addressRegion": "Kigali",
-      "addressCountry": "RW"
-    },
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-        "opens": "07:00",
-        "closes": "23:00"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Saturday", "Sunday"],
-        "opens": "09:00",
-        "closes": "23:00"
-      }
-    ]
-  }
-  </script>
-  <style id="chatCritical">
-    #helpScrim { position: fixed; inset: 0; z-index: 80; background: rgba(12, 16, 14, .46); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .35s ease, visibility .35s ease; }
-    #helpScrim.is-on { opacity: 1; visibility: visible; pointer-events: auto; }
-    #helpSheet { position: fixed; left: 50%; bottom: 0; z-index: 81; width: min(440px, 100%); max-height: min(72vh, 560px); transform: translate(-50%, 110%); transition: transform .45s cubic-bezier(.16, 1, .3, 1); background: #141c19; color: #f4f0e8; border: 1px solid rgba(196, 165, 116, .35); border-bottom: 0; display: flex; flex-direction: column; overflow: hidden; }
-    #helpSheet.is-on { transform: translate(-50%, 0); }
-    #helpSheet .help-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; flex-shrink: 0; border-bottom: 1px solid rgba(244, 240, 232, .08); }
-    #helpCloseBtn, #helpSend { border: 0; cursor: pointer; font: inherit; }
-    #helpCloseBtn { background: transparent; color: #f4f0e8; letter-spacing: .14em; text-transform: uppercase; font-size: .68rem; padding: 8px 0; }
-    #helpBody { flex: 1; overflow: auto; padding: 18px 20px; min-height: 180px; display: flex; flex-direction: column; gap: 10px; }
-    #helpBody .chat-bubble { max-width: 88%; padding: 10px 12px; font-size: .92rem; line-height: 1.45; }
-    #helpBody .chat-bubble .meta { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(244, 240, 232, .55); margin-bottom: 4px; }
-    #helpBody .chat-bubble.customer { background: rgba(244, 240, 232, .06); align-self: flex-end; }
-    #helpBody .chat-bubble.admin { background: rgba(196, 165, 116, .12); align-self: flex-start; }
-    #helpFoot { display: flex; gap: 10px; padding: 14px 16px 16px; border-top: 1px solid rgba(244, 240, 232, .08); }
-    #helpInput { flex: 1; border: 0; border-bottom: 1px solid rgba(244, 240, 232, .28); background: transparent; color: #f4f0e8; padding: 10px 0; font: inherit; }
-    #helpSend { background: #f4f0e8; color: #141c19; padding: 12px 16px; letter-spacing: .14em; text-transform: uppercase; font-size: .68rem; font-weight: 500; }
-    #helpFab { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); z-index: 45; border: 1px solid rgba(26, 25, 22, .2); background: #f7f4ee; color: #1a1916; letter-spacing: .16em; text-transform: uppercase; font-size: .68rem; font-weight: 500; padding: 14px 16px; cursor: pointer; font-family: Outfit, system-ui, sans-serif; }
-    body.help-open { overflow: hidden; }
-    @media (max-width: 640px) {
-      #helpSheet { width: 100%; }
-      #helpFoot { flex-wrap: wrap; }
-      #helpInput { min-width: 0; width: 100%; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      #helpScrim, #helpSheet { transition: none; }
-    }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#183c30">
+<meta name="description" content="Boutique La Différence in Zindiro, Kigali. Explore groceries, drinks, home essentials and more in one friendly neighbourhood shop.">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'">
+<link rel="canonical" href="https://arnold-rg.github.io/Boutique-la-difference/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css?v=20261119">
+<title>Boutique La Différence | Your neighbourhood, well stocked</title>
 </head>
 <body>
-  <a class="skip-link" href="#top">Skip to content</a>
-  <header class="site-nav" id="siteNav">
-    <div class="nav-inner">
-      <a class="brand" href="#top">
-        <span class="brand-mark" aria-hidden="true">Ld</span>
-        <span class="brand-text">
-          <span class="brand-name" data-shop-name>Boutique La Différence</span>
-          <span class="brand-sub">Zindiro, Kigali</span>
-        </span>
-      </a>
-      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
-        <span class="menu-bars" aria-hidden="true"></span>
-      </button>
-      <nav class="nav-links" id="navLinks" aria-label="Shop">
-        <a href="#categories">Departments</a>
-        <a href="#catalog">List</a>
-        <a href="#about">About</a>
-        <a href="#team">People</a>
-        <a href="#feedback">Feedback</a>
-        <a href="#visit">Visit</a>
-      </nav>
-      <div class="nav-meta">
-        <button type="button" class="cart-btn" id="cartBtn" aria-label="Open cart, 0 items">
-          <span class="cart-label">Cart</span>
-          <span class="cart-count" id="cartCount">0</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <main id="top" tabindex="-1">
-    <section class="hero" aria-labelledby="heroTitle">
-      <div class="hero-inner">
-        <div class="hero-copy">
-          <p class="hero-kicker">Neighborhood supermarket</p>
-          <h1 id="heroTitle" data-shop-name>Boutique La Différence</h1>
-          <p class="hero-lead" data-tagline>Food, drinks, and the household things a week runs on. KG 11 Ave, Zindiro.</p>
-          <div class="hero-actions">
-            <a class="btn btn-solid" href="#catalog">Browse the list</a>
-            <a class="btn btn-ghost" href="#visit">Plan a visit</a>
-          </div>
-          <dl class="hero-facts">
-            <div>
-              <dt>Address</dt>
-              <dd data-address>KG 11 Ave, Zindiro, Kigali</dd>
-            </div>
-            <div>
-              <dt>Account</dt>
-              <dd>None. Shop as a guest.</dd>
-            </div>
-          </dl>
-        </div>
-        <div class="hero-stage">
-          <div class="hero-media">
-            <video id="heroVideo" autoplay muted loop playsinline hidden></video>
-            <canvas id="heroCanvas" aria-hidden="true"></canvas>
-            <div class="hero-veil" aria-hidden="true"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section unsection" id="categories">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">Departments</div>
-          <h2>The house, <em>shelf by shelf</em></h2>
-          <p>Seven departments. Choose one and the list below follows.</p>
-        </div>
-        <div class="cat-grid" id="catGrid"></div>
-      </div>
-    </section>
-
-    <section class="section alt unsection catalog-section" id="catalog">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">The list</div>
-          <h2>What is <em>on the shelf</em></h2>
-          <p>Names and prices come from the shop’s own list. Search if you already know what you want.</p>
-        </div>
-        <div class="toolbar">
-          <label class="search">
-            <span class="sr-only">Search products</span>
-            <input id="catalogSearch" type="search" placeholder="Search the list" autocomplete="off" enterkeyhint="search" maxlength="120">
-          </label>
-          <p class="catalog-count" id="catalogCount" aria-live="polite"></p>
-          <div class="filters" id="filterChips" role="toolbar" aria-label="Filter by department"></div>
-        </div>
-        <div class="product-grid" id="productGrid"></div>
-        <noscript><p class="empty-state">The list needs JavaScript so this browser can read the shop’s prices.</p></noscript>
-      </div>
-    </section>
-
-    <section class="section" id="promos">
-      <div class="container">
-        <div class="promo-band" id="promoBand" hidden>
-          <div class="promo-grid">
-            <div>
-              <div class="eyebrow eyebrow-light">From the floor</div>
-              <h2>Notices</h2>
-              <p>Discounts and events the shop is running now.</p>
-            </div>
-            <div class="promo-list" id="promoList"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="about">
-      <div class="container about-grid">
-        <div>
-          <div class="eyebrow">About</div>
-          <h2>A neighborhood shop</h2>
-          <p id="aboutStory" class="about-copy"></p>
-          <p id="aboutMission" class="about-mission"></p>
-        </div>
-        <aside class="panel" id="socialPanel">
-          <h3>Elsewhere</h3>
-          <div class="social-links" id="socialLinks"></div>
-        </aside>
-      </div>
-    </section>
-
-    <section class="section alt" id="team">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">People</div>
-          <h2>At the counter</h2>
-          <p>The people who keep the shop.</p>
-        </div>
-        <div class="team-grid" id="teamGrid"></div>
-      </div>
-    </section>
-
-    <section class="section" id="feedback">
-      <div class="container">
-        <div class="section-head feedback-intro">
-          <div class="eyebrow">Feedback</div>
-          <h2>How did we do</h2>
-          <p>A rating and a few words. We read them.</p>
-        </div>
-        <div class="feedback-layout">
-          <form class="feedback-form" id="feedbackForm" novalidate>
-            <div class="fb-form-head">
-              <h3>Leave a note</h3>
-              <p>Your name can stay blank.</p>
-            </div>
-            <div class="fb-rating-block">
-              <div class="fb-rating-label">
-                <span>Your rating</span>
-                <strong id="fbRatingLabel">Excellent</strong>
-              </div>
-              <div class="star-pick" id="starPick" role="radiogroup" aria-label="Star rating">
-                <button type="button" role="radio" data-star="1" aria-checked="false" aria-label="1 star">★</button>
-                <button type="button" role="radio" data-star="2" aria-checked="false" aria-label="2 stars">★</button>
-                <button type="button" role="radio" data-star="3" aria-checked="false" aria-label="3 stars">★</button>
-                <button type="button" role="radio" data-star="4" aria-checked="false" aria-label="4 stars">★</button>
-                <button type="button" role="radio" data-star="5" aria-checked="true" aria-label="5 stars">★</button>
-              </div>
-              <input type="hidden" id="fbRating" value="5">
-            </div>
-            <fieldset class="field">
-              <legend>How did it feel?</legend>
-              <div class="reaction-pick" id="reactionPick">
-                <button type="button" class="reaction-btn active" data-reaction="Loved it" aria-pressed="true">Loved it</button>
-                <button type="button" class="reaction-btn" data-reaction="Happy" aria-pressed="false">Happy</button>
-                <button type="button" class="reaction-btn" data-reaction="Okay" aria-pressed="false">Okay</button>
-                <button type="button" class="reaction-btn" data-reaction="Needs work" aria-pressed="false">Needs work</button>
-                <button type="button" class="reaction-btn" data-reaction="Disappointed" aria-pressed="false">Disappointed</button>
-              </div>
-              <input type="hidden" id="fbReaction" value="Loved it">
-            </fieldset>
-            <div class="fb-grid-2">
-              <div class="field">
-                <label for="fbName">Your name</label>
-                <input id="fbName" class="fb-control" type="text" placeholder="Optional" maxlength="80" autocomplete="name">
-              </div>
-              <div class="field">
-                <label for="fbProduct">About</label>
-                <select id="fbProduct" class="fb-control">
-                  <option value="General service">General service</option>
-                </select>
-              </div>
-            </div>
-            <div class="field">
-              <label for="fbComment">Your comment</label>
-              <textarea id="fbComment" class="fb-control" rows="4" placeholder="The queue, the prices, something you could not find…" maxlength="500"></textarea>
-              <div class="fb-char"><span id="fbCharCount">0</span> / 500</div>
-            </div>
-            <div class="fb-actions">
-              <button type="submit" class="btn btn-solid fb-submit">Send feedback</button>
-              <p class="feedback-note" id="fbThanks" role="status" hidden>Thank you. Your note was saved on this browser.</p>
-            </div>
-          </form>
-          <aside class="feedback-side">
-            <div class="fb-summary" id="fbSummary">
-              <div class="fb-score">
-                <div class="fb-score-num" id="fbAvgScore">—</div>
-                <div class="fb-score-meta">
-                  <div class="fb-score-stars" id="fbAvgStars" aria-hidden="true"></div>
-                  <div class="fb-score-count" id="fbReviewCount">No notes yet</div>
-                </div>
-              </div>
-            </div>
-            <div class="fb-side-head">
-              <div class="eyebrow">Recent</div>
-              <h3>What people wrote</h3>
-            </div>
-            <div class="review-list" id="reviewList"></div>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="section alt" id="ads">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">Neighbors</div>
-          <h2>On our board</h2>
-          <p>Other businesses the shop chooses to mention.</p>
-        </div>
-        <div class="ads-grid" id="adsGrid"></div>
-      </div>
-    </section>
-
-    <section class="section" id="gallery">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">The room</div>
-          <h2>Inside the shop</h2>
-          <p>Photographs from the floor.</p>
-        </div>
-        <div class="gallery" id="galleryGrid"></div>
-      </div>
-    </section>
-
-    <section class="section alt" id="visit">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">Visit</div>
-          <h2>The door is on <em>KG 11 Ave</em></h2>
-          <p>Come in, or send a cart on WhatsApp when the shop has published a number.</p>
-        </div>
-        <div class="visit-grid">
-          <div class="panel">
-            <h3>Hours and contact</h3>
-            <table class="hours" id="hoursTable">
-              <caption class="sr-only">Opening hours</caption>
-            </table>
-            <p class="addr-label">Address</p>
-            <p class="addr" data-address></p>
-            <div class="visit-actions">
-              <a class="btn btn-solid" id="shopPhone" href="#" hidden>Call the shop</a>
-              <a class="btn btn-ghost" id="shopWhatsapp" href="#" hidden target="_blank" rel="noopener noreferrer">WhatsApp</a>
-            </div>
-          </div>
-          <div class="map-frame">
-            <iframe id="mapFrame" title="Map of Boutique La Différence in Zindiro, Kigali" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=Zindiro+Kigali&output=embed"></iframe>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <h3 data-shop-name>Boutique La Différence</h3>
-        <p data-tagline></p>
-        <div class="social-links" id="footerSocial"></div>
-      </div>
-      <div>
-        <h3>Find</h3>
-        <p><a href="#catalog">The list</a></p>
-        <p><a href="#about">About</a></p>
-        <p><a href="#feedback">Feedback</a></p>
-        <p><a href="#visit">Visit</a></p>
-      </div>
-      <div>
-        <h3>How to buy</h3>
-        <p>No account. Add what you need and send the list, or pay at the counter.</p>
-      </div>
-    </div>
-    <div class="container footer-bottom">
-      <span>© <span id="year"></span> Boutique La Différence · Arnold Rurangwa · Vira</span>
-    </div>
-  </footer>
-
-  <div class="scrim" id="cartScrim" hidden></div>
-  <aside class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle" aria-hidden="true">
-    <div class="cart-head">
-      <h2 class="display" id="cartTitle">Your cart</h2>
-      <button type="button" class="btn btn-ghost" id="cartClose">Close</button>
-    </div>
-    <div class="cart-body" id="cartBody"></div>
-    <form class="cart-foot" id="checkoutForm">
-      <div class="cart-total">Total <strong id="cartTotal">RWF 0</strong></div>
-      <div class="field">
-        <label for="coName">Full name</label>
-        <input id="coName" class="input" autocomplete="name" maxlength="80" required>
-      </div>
-      <div class="field">
-        <label for="coPhone">Phone</label>
-        <input id="coPhone" class="input" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" required>
-      </div>
-      <div class="field">
-        <label for="coAddr">Delivery address</label>
-        <input id="coAddr" class="input" autocomplete="street-address" placeholder="Neighborhood or street" maxlength="200">
-      </div>
-      <button type="submit" class="btn btn-solid" id="btnCheckout">Send the list</button>
-    </form>
-  </aside>
-
-  <button type="button" class="sticky-cart" id="stickyCartBar" aria-hidden="true" aria-label="Open cart">
-    <span class="sticky-cart-left">
-      <span class="sticky-cart-badge" id="stickyCartCount">0</span>
-      <span class="sticky-cart-label">View cart</span>
-    </span>
-    <span class="sticky-cart-total" id="stickyCartTotal">RWF 0</span>
-  </button>
-
-  <button type="button" id="helpFab" aria-expanded="false" aria-controls="helpSheet">Message the shop</button>
-  <div id="helpScrim"></div>
-  <div id="helpSheet" role="dialog" aria-label="Message the shop" aria-modal="true" aria-hidden="true">
-    <div class="help-head">
-      <div>
-        <strong>The shop</strong>
-        <div class="help-sub">Boutique La Différence</div>
-      </div>
-      <button type="button" id="helpCloseBtn">Close</button>
-    </div>
-    <div id="helpBody"></div>
-    <form id="helpFoot">
-      <label class="sr-only" for="helpInput">Message</label>
-      <input id="helpInput" type="text" placeholder="Write a message" autocomplete="off" maxlength="500">
-      <button type="submit" id="helpSend">Send</button>
-    </form>
+<a href="#main" class="skip">Skip to main content</a>
+<div class="topline"><span>✳</span> From our shelves to your everyday <b>·</b> Zindiro, Kigali, Rwanda</div>
+<header class="header" id="top"><div class="wrap header-inner">
+ <a class="brand" href="#top" aria-label="Boutique La Différence home"><span class="brand-box">ld<span>.</span></span><span class="brand-name">boutique<small>la différence</small></span></a>
+ <nav class="nav" id="navigation" aria-label="Primary navigation"><a href="#departments">Departments</a><a href="#shop">Shop essentials</a><a href="#about">Our story</a><a href="#visit">Find us</a></nav>
+ <div class="header-right"><span class="header-address">⌖ Zindiro, Kigali</span><button class="cart-open" id="cartOpen" aria-label="Open shopping list" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16l-1.6 13H5.6L4 7ZM9 9V6a3 3 0 0 1 6 0v3"/></svg><span id="cartCount">0</span></button><button class="menu-button" id="menuToggle" type="button" aria-controls="navigation" aria-expanded="false" aria-label="Open menu"><i></i><i></i></button></div>
+</div></header>
+<main id="main">
+<section class="hero"><div class="wrap hero-grid">
+  <div class="hero-text"><span class="eyebrow light">LOCAL GOODS. EVERYDAY GOODNESS.</span><h1>A little shop.<br>A lot of <em>good.</em></h1><p>From rice for the family table to the things you forgot you needed. Thoughtful essentials, close to home.</p><div class="hero-actions"><a class="button peach" href="#shop">Explore the shop <span>↗</span></a><a class="under-link" href="#about">Get to know us ↗</a></div><div class="hero-signoff"><span class="mini-dots">●●●</span> Good things, right around the corner.</div></div>
+  <div class="hero-image"><img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=85" alt="Illustrative photograph of shelves in a grocery store"><div class="round-stamp"><small>YOUR LOCAL</small><strong>good<br>goods.</strong><small>KIGALI • RWANDA</small></div><span class="image-note">Illustrative photography</span></div>
+</div></section>
+<div class="hero-strip wrap"><span>01 / Fresh thinking for everyday living</span><span>Discover the store ↓</span></div>
+<section class="benefits"><div class="wrap benefits-grid"><div><span class="benefit-mark">✳</span><p><strong>Everyday essentials</strong><small>All the little things that matter</small></p></div><div><span class="benefit-mark">⌖</span><p><strong>Right here in Zindiro</strong><small>A local shop for local life</small></p></div><div><span class="benefit-mark">↗</span><p><strong>Easy to explore</strong><small>Browse before you go</small></p></div></div></section>
+<section class="section departments" id="departments"><div class="wrap">
+  <div class="section-head"><div><span class="eyebrow">MADE FOR YOUR EVERYDAY</span><h2>What are you looking for<span class="dot">?</span></h2></div><p>From kitchen staples to the just-in-case drawer. Find it all in one friendly little place.</p></div>
+  <div class="department-grid" id="departmentGrid">
+    <button data-category="food" type="button" class="department-card"><small>01 /</small><span class="department-art">🍚</span><strong>Food & pantry</strong><span>For the family table</span><i>↗</i></button>
+    <button data-category="drinks" type="button" class="department-card"><small>02 /</small><span class="department-art">🥤</span><strong>Drinks</strong><span>Something refreshing</span><i>↗</i></button>
+    <button data-category="home" type="button" class="department-card"><small>03 /</small><span class="department-art">🏡</span><strong>Home essentials</strong><span>For the place you love</span><i>↗</i></button>
+    <button data-category="body" type="button" class="department-card"><small>04 /</small><span class="department-art">🧴</span><strong>Personal care</strong><span>A little care every day</span><i>↗</i></button>
+    <button data-category="electronics" type="button" class="department-card"><small>05 /</small><span class="department-art">💡</span><strong>Electronics</strong><span>Small things, big help</span><i>↗</i></button>
+    <button data-category="tools" type="button" class="department-card"><small>06 /</small><span class="department-art">🧰</span><strong>Tools & more</strong><span>For the work that needs doing</span><i>↗</i></button>
   </div>
-
-  <script src="assets/js/help-chat.js?v=20261029r"></script>
-  <script src="assets/vira/vira-secure.js?v=20261029r"></script>
-  <script src="assets/js/data.js?v=20261029r"></script>
-  <script src="assets/js/chat-form.js?v=20261029r"></script>
-  <script src="assets/js/store.js?v=20261029r"></script>
-</body>
-</html>
+</div></section>
+<section class="section shop" id="shop"><div class="wrap">
+  <div class="section-head"><div><span class="eyebrow">THE SHELF EDIT</span><h2>Good things <em>inside.</em></h2></div><p>The everyday basics, neatly together. Find what you need and make a list for your next visit.</p></div>
+  <div class="shop-controls"><div class="filters" id="filters" role="group" aria-label="Product category">
+    <button data-filter="all" class="selected" aria-pressed="true">All products</button>
+    <button data-filter="food" aria-pressed="false">Food</button><button data-filter="drinks" aria-pressed="false">Drinks</button><button data-filter="home" aria-pressed="false">Home</button><button data-filter="body" aria-pressed="false">Body</button><button data-filter="electronics" aria-pressed="false">Electronics</button><button data-filter="tools" aria-pressed="false">Tools</button><button data-filter="more" aria-pressed="false">More</button>
+  </div><label class="search"><span aria-hidden="true">⌕</span><span class="sr-only">Search products</span><input id="searchInput" type="search" placeholder="Search the shelves..." maxlength="80"></label></div>
+  <p class="notice">Catalogue prices and availability are illustrative until confirmed by the shop.</p>
+  <div class="product-grid" id="products" aria-live="polite"><p class="no-results">Loading the shelves...</p></div>
+  <div class="shop-bottom"><span id="resultCount"></span><a class="under-link dark" href="#visit">Visit the store ↗</a></div>
+</div></section>
+<section class="about" id="about"><div class="wrap about-grid">
+  <div class="about-photo"><img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=85" loading="lazy" alt="Illustrative image of everyday groceries"><div class="photo-sticker">MADE FOR<br><strong>real life.</strong></div></div>
+  <div class="about-copy"><span class="eyebrow">A SHOP WITH A HEART</span><h2>Because the best things are <em>close to home.</em></h2><p>The neighbourhood shop should feel familiar. A place for rice and cooking oil, the missing bulb, the last-minute bottle of water, and everything in between.</p><p>Boutique La Différence brings everyday essentials into one easy stop in Zindiro, Kigali.</p><a class="button outline" href="#visit">Come say hello <span>↗</span></a></div>
+</div></section>
+<section class="section visit" id="visit"><div class="wrap visit-grid">
+ <div class="visit-copy"><span class="eyebrow">FIND US IN KIGALI</span><h2>Not far.<br>Just <em>around.</em></h2><p>Need something for tonight, tomorrow or the week ahead? Stop by and take a look.</p><div class="location-row"><small>01 / LOCATION</small><strong>KG 11 Avenue, Zindiro<br>Kigali, Rwanda</strong></div><div class="location-row"><small>02 / OPENING HOURS</small><strong>Please confirm hours before visiting.</strong></div><a class="button peach" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=KG%2011%20Ave%20Zindiro%20Kigali%20Rwanda">Get directions ↗</a></div>
+ <div class="visit-photo"><img src="https://images.unsplash.com/photo-1601599561213-832382fd07ba?auto=format&fit=crop&w=1100&q=85" alt="Illustrative market produce photography" loading="lazy"><div class="visit-photo-card"><span>⌖</span><strong>Find your new<br>favourite local stop.</strong></div></div>
+</div></section>
+<section class="prefooter"><div class="wrap"><strong>Small shop. Big heart.</strong><a href="#shop">Back to the shelves ↗</a></div></section>
+</main>
+<footer class="footer"><div class="wrap footer-main"><div><a href="#top" class="footer-brand">boutique <span>la différence.</span></a><p>Everyday goods for the life you live.<br>Zindiro, Kigali, Rwanda.</p></div><nav aria-label="Footer links"><a href="#departments">Departments</a><a href="#shop">Products</a><a href="#about">About</a><a href="#visit">Visit</a></nav></div><div class="wrap footer-bottom"><span>© <span id="year">2026</span> Boutique La Différence</span><span>Built with care for our neighbourhood.</span></div></footer>
+<div class="backdrop" id="backdrop" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="drawerTitle" tabindex="-1"><div class="drawer-header"><div><span class="eyebrow">YOUR NEIGHBOURHOOD LIST</span><h2 id="drawerTitle">Your basket<span class="dot">.</span></h2></div><button id="cartClose" type="button" aria-label="Close basket" class="close">×</button></div><p class="drawer-note">Create a shopping list before your visit. This is not an online payment checkout.</p><div class="drawer-items" id="cartItems"></div><div class="drawer-footer"><div class="total"><span>Estimated total</span><strong id="cartTotal">RWF 0</strong></div><p>Prices and stock must be confirmed in-store before buying.</p><button class="button peach full" id="copyList" type="button">Copy shopping list ↗</button><button class="clear" id="clearCart" type="button">Clear basket</button><p id="copyStatus" role="status"></p></div></aside>
+<script src="assets/js/data.js?v=20261029r" defer></script><script src="assets/js/store.js?v=20261119" defer></script>
+</body></html>
