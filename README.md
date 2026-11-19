@@ -63,13 +63,6 @@ Use secrets management, least privilege, deployment environment isolation, depen
 
 These are **release criteria**, not claims that every control is currently enabled. Kubernetes should only be used when the actual runtime complexity justifies it.
 
-## Roadmap
-
-1. Validate the catalog against owner-approved stock and pricing.
-2. Run mobile cart/search interaction and accessibility checks.
-3. Define inventory API, order lifecycle and secure checkout with the owner.
-4. Add staging, release approvals and after-deploy monitoring.
-
 ## Contributing and support
 
 Create a small, reviewable change, include reproduction steps and tests, and document environmental impacts. Do not publish unapproved customer details or change live services without release authorization. Report security vulnerabilities privately via `SECURITY.md` where available.
